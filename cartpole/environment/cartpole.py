@@ -14,7 +14,7 @@ class CartPole(object):
                     T.ToTensor()])
 
     def __init__(self):
-        self.env = gym.make('CartPole-v0').unwrapped
+        self.env = gym.make('CartPole-v1').unwrapped
 
     def get_cart_location(self, screen_width):
         world_width = self.env.x_threshold * 2
