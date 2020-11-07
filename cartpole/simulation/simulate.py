@@ -7,12 +7,17 @@ from agent.learningmethod.dqn.dqn import DqnLearningMethod
 from agent.policy.greedy import Greedy
 from agent.policy.egreedy import Egreedy
 from environment.cartpole import CartPole
+from datautil.datashaping import DataShaping
 
 
 class Simulate(object):
     def __init__(self):
         self.env = CartPole()
         self.agent = None
+        self.dulation = []
+        self.episode_dulations = []
+        # self.reward = []
+        # self.episode_rewards = []
 
     def agent_reset(self):
         self.env.reset()
@@ -26,7 +31,10 @@ class Simulate(object):
     def start(self):
         for i_simulation in range(utility.NUM_SIMULATION):
             self.agent_reset()
+            self.dulation = []
             self.one_simulate_start()
+            self.episode_dulations.append(self.dulation)
+        DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], 'dulation.csv')
         print('Complete')
 
     def one_simulate_start(self):
@@ -60,5 +68,5 @@ class Simulate(object):
 
             self.agent.update()
             if done:
-                # プロット関係を書く
+                self.dulation.append(t + 1)
                 break
