@@ -25,7 +25,7 @@ class DqnLearningMethod(Model):
         batch = utility.Transition(*zip(*transitions))
 
         non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=utility.device, dtype=torch.bool)
-        non_final_next_state = torch.cat([s for s in batch.next_state if s is not None])
+        non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
         state_batch = torch.cat(batch.state)
         action_batch = torch.cat(batch.action)
         reward_batch = torch.cat(batch.reward)
@@ -33,7 +33,7 @@ class DqnLearningMethod(Model):
         state_action_value = self.policy_net(state_batch).gather(1, action_batch)
 
         next_state_values = torch.zeros(utility.BATCH_SIZE, device=utility.device)
-        next_state_values[non_final_mask] = target_policy(self.target_net(non_final_next_state))
+        next_state_values[non_final_mask] = target_policy.select(self.target_net(non_final_next_states))
 
         # Compute the expected Q values
         expected_state_action_value = (next_state_values * utility.GAMMA) + reward_batch
@@ -47,3 +47,15 @@ class DqnLearningMethod(Model):
         for param in self.policy_net.parameters():
             param.grad.data.clamp_(-1, 1)
         self.optimizer.step()
+
+    def update_target_network(self):
+        self.target_net.load_state_dict(self.policy_net.state_dict())
+
+    def save_memory(self, state, action, next_state, reward):
+        self.memory.push(state, action, next_state, reward)
+
+    def output_target_net(self, state):
+        return self.target_net(state)
+
+    def output_policy_net(self, state):
+        return self.policy_net(state)

@@ -21,6 +21,6 @@ class Egreedy(PolicyModel):
             math.exp(-1 * self.steps_done / self.epsilon_decay)
         self.steps_done += 1
         if sample < eps_threshold:
-            return Greedy.select(set)
+            return Greedy().select(set)
         else:
             return torch.tensor([[random.randrange(self.n_action)]], device=utility.device, dtype=torch.long)

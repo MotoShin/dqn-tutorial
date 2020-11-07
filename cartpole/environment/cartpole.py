@@ -1,8 +1,11 @@
 import gym
+import numpy as np
 from PIL import Image
 
 import torch
 import torchvision.transforms as T
+
+import utility
 
 
 class CartPole(object):
@@ -26,7 +29,7 @@ class CartPole(object):
         _, screen_height, screen_width = screen.shape
         screen = screen[:, int(screen_height*0.4):int(screen_height*0.8)]
         view_width = int(screen_width * 0.6)
-        cart_location = get_cart_location(screen_width)
+        cart_location = self.get_cart_location(screen_width)
         if cart_location < view_width // 2:
             slice_range = slice(view_width)
         elif cart_location > (screen_width - view_width // 2):
@@ -40,7 +43,7 @@ class CartPole(object):
         screen = np.ascontiguousarray(screen, dtype=np.float32) / 255
         screen = torch.from_numpy(screen)
         # Resize, and add a batch dimension (BCHW)
-        return resize(screen).unsqueeze(0).to(device)
+        return self.resize(screen).unsqueeze(0).to(utility.device)
     
     def get_n_actions(self):
         return self.env.action_space.n

@@ -11,7 +11,13 @@ class Agent(object):
         self.target_policy = target_policy
 
     def select_action(self, state):
-        return self.behavior_policy(state)
+        return self.behavior_policy.select(self.learning_method.output_policy_net(state))
 
     def update(self):
         self.learning_method.optimize_model(self.target_policy)
+
+    def update_target_network(self):
+        self.learning_method.update_target_network()
+
+    def save_memory(self, state, action, next_state, reward):
+        self.learning_method.save_memory(state, action, next_state, reward)
