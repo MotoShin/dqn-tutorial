@@ -6,19 +6,19 @@ import torch.nn.functional as F
 import utility
 from agent.learningmethod.dqn.network import Network
 from agent.learningmethod.replaymemory import ReplayMemory
+from agent.learningmethod.model import Model
 
 
-class DqnLearningMethod(object):
+class DqnLearningMethod(Model):
     def __init__(self, screen_height, screen_width, n_actions):
         self.policy_net = Network(screen_height, screen_width, n_actions).to(utility.device)
         self.target_net = Network(screen_height, screen_width, n_actions).to(utility.device)
-        self.target_net.load_state_dict(self.policy_net.state_dict)
+        self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
-        self.optimizer = optim.RMSprop(self.policy_net.parameters)
+        self.optimizer = optim.RMSprop(self.policy_net.parameters())
         self.memory = ReplayMemory(10000)
 
-    def update(self):
-        # optimize model
+    def optimize_model(self, target_policy):
         if len(self.memory) < utility.BATCH_SIZE:
             return
         transitions = self.memory.sample(utility.BATCH_SIZE)
@@ -33,7 +33,7 @@ class DqnLearningMethod(object):
         state_action_value = self.policy_net(state_batch).gather(1, action_batch)
 
         next_state_values = torch.zeros(utility.BATCH_SIZE, device=utility.device)
-        next_state_values[non_final_mask] = self.target_net(non_final_next_state).max(1)[0].detach()
+        next_state_values[non_final_mask] = target_policy(self.target_net(non_final_next_state))
 
         # Compute the expected Q values
         expected_state_action_value = (next_state_values * utility.GAMMA) + reward_batch

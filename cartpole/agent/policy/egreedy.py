@@ -4,9 +4,10 @@ import math
 
 import utility
 from agent.policy.greedy import Greedy
+from agent.policy.policymodel import PolicyModel
 
 
-class Egreedy(object):
+class Egreedy(PolicyModel):
     def __init__(self, n_action):
         self.epsilon_start = utility.EPS_START
         self.epsilon_end = utility.EPS_END
