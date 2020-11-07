@@ -34,6 +34,9 @@ class Simulate(object):
             self.dulation = []
             self.one_simulate_start()
             self.episode_dulations.append(self.dulation)
+            if (i_simulation + 1) % 10 == 0:
+                print(i_simulation + 1)
+                DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], "dulation_{}.csv".format(i_simulation+1))
         DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], 'dulation.csv')
         print('Complete')
 
