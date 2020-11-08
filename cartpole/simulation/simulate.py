@@ -16,8 +16,8 @@ class Simulate(object):
         self.agent = None
         self.dulation = []
         self.episode_dulations = []
-        # self.reward = []
-        # self.episode_rewards = []
+        self.reward = []
+        self.episode_rewards = []
 
     def agent_reset(self):
         self.env.reset()
@@ -32,12 +32,16 @@ class Simulate(object):
         for i_simulation in range(utility.NUM_SIMULATION):
             self.agent_reset()
             self.dulation = []
+            self.reward = []
             self.one_simulate_start()
             self.episode_dulations.append(self.dulation)
+            self.episode_rewards.append(self.reward)
             if (i_simulation + 1) % 10 == 0:
                 print(i_simulation + 1)
                 DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], "dulation_{}.csv".format(i_simulation+1))
+                DataShaping.makeCsv(self.episode_rewards, ['episode', 'reward'], "reward_{}.csv".format(i_simulation+1))
         DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], 'dulation.csv')
+        DataShaping.makeCsv(self.episode_rewards, ['episode', 'reward'], 'reward.csv')
         print('Complete')
 
     def one_simulate_start(self):
@@ -51,6 +55,7 @@ class Simulate(object):
         last_screen = self.env.get_screen()
         current_screen = self.env.get_screen()
         state = current_screen - last_screen
+        sum_reward = 0.0
         for t in count():
             action = self.agent.select_action(state)
             _, reward, done, _ = self.env.step(action.item())
@@ -68,8 +73,10 @@ class Simulate(object):
             
             # Move to the next state
             state = next_state
+            sum_reward += reward.item()
 
             self.agent.update()
             if done:
                 self.dulation.append(t + 1)
+                self.reward.append(sum_reward)
                 break
