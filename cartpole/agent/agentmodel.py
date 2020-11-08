@@ -21,3 +21,6 @@ class Agent(object):
 
     def save_memory(self, state, action, next_state, reward):
         self.learning_method.save_memory(state, action, next_state, reward)
+
+    def save_parameters(self):
+        self.learning_method.output_net_paramertes()

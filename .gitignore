@@ -134,5 +134,6 @@ dmypy.json
 # pycharm
 .idea/
 
-# csv file
+# project
 *.csv
+*.pth

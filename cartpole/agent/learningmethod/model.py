@@ -25,3 +25,7 @@ class Model(object):
     @abstractmethod
     def output_target_net(self, state):
         pass
+
+    @abstractmethod
+    def output_net_paramertes(self):
+        pass

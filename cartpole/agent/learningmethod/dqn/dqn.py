@@ -59,3 +59,6 @@ class DqnLearningMethod(Model):
 
     def output_policy_net(self, state):
         return self.policy_net(state)
+
+    def output_net_paramertes(self):
+        torch.save(self.policy_net, utility.NET_PARAMETERS_BK_PATH)

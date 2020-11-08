@@ -34,6 +34,7 @@ class Simulate(object):
             self.dulation = []
             self.reward = []
             self.one_simulate_start()
+            self.agent.save_parameters()
             self.episode_dulations.append(self.dulation)
             self.episode_rewards.append(self.reward)
             if (i_simulation + 1) % 10 == 0:
