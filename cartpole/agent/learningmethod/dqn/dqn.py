@@ -2,27 +2,29 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+import numpy as np
 
 import utility
 from agent.learningmethod.dqn.network import Network
 from agent.learningmethod.replaymemory import ReplayMemory
 from agent.learningmethod.model import Model
+from domain.stepresult import StepResult
 
 
 class DqnLearningMethod(Model):
-    def __init__(self, screen_height, screen_width, n_actions):
-        self.policy_net = Network(screen_height, screen_width, n_actions).to(utility.device)
-        self.target_net = Network(screen_height, screen_width, n_actions).to(utility.device)
-        self.target_net.load_state_dict(self.policy_net.state_dict())
+    def __init__(self, n_actions):
+        self.value_net = Network(n_actions).to(utility.device)
+        self.target_net = Network(n_actions).to(utility.device)
+        self.target_net.load_state_dict(self.value_net.state_dict())
         self.target_net.eval()
-        self.optimizer = optim.RMSprop(self.policy_net.parameters())
+        self.optimizer = optim.RMSprop(self.value_net.parameters())
         self.memory = ReplayMemory(10000)
 
     def optimize_model(self, target_policy):
         if len(self.memory) < utility.BATCH_SIZE:
             return
         transitions = self.memory.sample(utility.BATCH_SIZE)
-        batch = utility.Transition(*zip(*transitions))
+        batch = StepResult.Transition(*zip(*transitions))
 
         non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=utility.device, dtype=torch.bool)
         non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
@@ -30,7 +32,7 @@ class DqnLearningMethod(Model):
         action_batch = torch.cat(batch.action)
         reward_batch = torch.cat(batch.reward)
 
-        state_action_value = self.policy_net(state_batch).gather(1, action_batch)
+        state_action_value = self.value_net(state_batch).gather(1, action_batch)
 
         next_state_values = torch.zeros(utility.BATCH_SIZE, device=utility.device)
         next_state_values[non_final_mask] = target_policy.select(self.target_net(non_final_next_states))
@@ -44,21 +46,21 @@ class DqnLearningMethod(Model):
         # optimize the model
         self.optimizer.zero_grad()
         loss.backward()
-        for param in self.policy_net.parameters():
+        for param in self.value_net.parameters():
             param.grad.data.clamp_(-1, 1)
         self.optimizer.step()
 
     def update_target_network(self):
-        self.target_net.load_state_dict(self.policy_net.state_dict())
+        self.target_net.load_state_dict(self.value_net.state_dict())
 
-    def save_memory(self, state, action, next_state, reward):
-        self.memory.push(state, action, next_state, reward)
+    def save_memory(self, step_result):
+        self.memory.push(step_result)
 
     def output_target_net(self, state):
         return self.target_net(state)
 
-    def output_policy_net(self, state):
-        return self.policy_net(state)
+    def output_value_net(self, state):
+        return self.value_net(state)
 
     def output_net_paramertes(self):
-        torch.save(self.policy_net.state_dict(), utility.NET_PARAMETERS_BK_PATH)
+        torch.save(self.value_net.state_dict(), utility.NET_PARAMETERS_BK_PATH)

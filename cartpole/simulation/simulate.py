@@ -8,6 +8,8 @@ from agent.policy.greedy import Greedy
 from agent.policy.egreedy import Egreedy
 from environment.cartpole import CartPole
 from datautil.datashaping import DataShaping
+from domain.networkinput import Input
+from domain.stepresult import StepResult
 
 
 class Simulate(object):
@@ -21,9 +23,8 @@ class Simulate(object):
 
     def agent_reset(self):
         self.env.reset()
-        _, _, screen_height, screen_width = self.env.get_screen().shape
         self.agent = Agent(
-            learning_method=DqnLearningMethod(screen_height, screen_width, self.env.get_n_actions()),
+            learning_method=DqnLearningMethod(self.env.get_n_actions()),
             behavior_policy=Egreedy(self.env.get_n_actions()),
             target_policy=Greedy()
         )
@@ -47,33 +48,34 @@ class Simulate(object):
 
     def one_simulate_start(self):
         for i_episode in range(utility.NUM_EPISODE):
-            self.env.reset()
+            # self.env.reset()
             self.one_episode_start()
             if i_episode % utility.TARGET_UPDATE == 0:
                 self.agent.update_target_network()
 
     def one_episode_start(self):
-        last_screen = self.env.get_screen()
         current_screen = self.env.get_screen()
-        state = current_screen - last_screen
+        state = Input()
+        state.push(current_screen)
+        next_state = state.copy()
         sum_reward = 0.0
         for t in count():
-            action = self.agent.select_action(state)
+            action = self.agent.select_action(state.get())
             _, reward, done, _ = self.env.step(action.item())
             reward = torch.tensor([reward], device=utility.device)
 
-            last_screen = current_screen
-            current_screen = self.env.get_screen()
             if not done:
-                next_state = current_screen - last_screen
+                next_state.push(self.env.get_screen())
             else:
-                next_state = None
+                self.env.reset()
+                next_state.push(self.env.get_screen())
 
             # Store the transaction in memory
-            self.agent.save_memory(state, action, next_state, reward)
+            step_result = StepResult(state.get(), action, next_state.get(), reward)
+            self.agent.save_memory(step_result)
             
             # Move to the next state
-            state = next_state
+            state = next_state.copy()
             sum_reward += reward.item()
 
             self.agent.update()
