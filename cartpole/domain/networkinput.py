@@ -1,7 +1,6 @@
 from collections import deque
 import numpy as np
 import torch
-from copy import deepcopy
 
 import utility
 
@@ -19,11 +18,3 @@ class Input(object):
     
     def get(self):
         return torch.from_numpy(self.inputs).type(utility.dtype).unsqueeze(0)
-
-    def set_inputs(self, inp):
-        self.inputs = deepcopy(inp)
-    
-    def copy(self):
-        b = Input()
-        b.set_inputs(self.inputs)
-        return b

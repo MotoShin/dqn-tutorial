@@ -57,15 +57,17 @@ class Simulate(object):
         current_screen = self.env.get_screen()
         state = Input()
         state.push(current_screen)
-        next_state = state.copy()
+        next_state = Input()
+        next_state.push(current_screen)
         sum_reward = 0.0
         for t in count():
             action = self.agent.select_action(state.get())
             _, reward, done, _ = self.env.step(action.item())
             reward = torch.tensor([reward], device=utility.device)
 
+            screen = self.env.get_screen()
             if not done:
-                next_state.push(self.env.get_screen())
+                next_state.push(screen)
             else:
                 self.env.reset()
                 next_state.push(self.env.get_screen())
@@ -75,7 +77,7 @@ class Simulate(object):
             self.agent.save_memory(step_result)
             
             # Move to the next state
-            state = next_state.copy()
+            state.push(screen)
             sum_reward += reward.item()
 
             self.agent.update()
