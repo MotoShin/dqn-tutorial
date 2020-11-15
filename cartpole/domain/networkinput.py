@@ -17,4 +17,4 @@ class Input(object):
         self.inputs[-1] = inp
     
     def get(self):
-        return torch.from_numpy(self.inputs).type(utility.dtype).unsqueeze(0)
+        return torch.from_numpy(self.inputs / 255.0).type(utility.dtype).unsqueeze(0)
