@@ -16,13 +16,13 @@ if __name__ == '__main__':
     policy = Greedy()
 
     screen = env.get_screen()
-    state = Input()
-    state.push(screen)
-    next_state = Input()
+    state = Input(screen)
+    next_state = Input(screen)
     next_state.push(screen)
     for i in count():
         action = policy.select(net(state.get()))
-        _, _, done, _ = env.step(action.item())
+        _, reward, done, _ = env.step(action.item())
+        print("done: {}, reward: {}".format(done, reward))
 
         screen = env.get_screen()
         if not done:

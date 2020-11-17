@@ -48,29 +48,27 @@ class Simulate(object):
 
     def one_simulate_start(self):
         for i_episode in range(utility.NUM_EPISODE):
-            # self.env.reset()
+            self.env.reset()
             self.one_episode_start()
             if i_episode % utility.TARGET_UPDATE == 0:
                 self.agent.update_target_network()
 
     def one_episode_start(self):
         current_screen = self.env.get_screen()
-        state = Input()
-        state.push(current_screen)
-        next_state = Input()
-        next_state.push(current_screen)
+        state = Input(current_screen)
+        next_state = Input(current_screen)
         sum_reward = 0.0
         for t in count():
             action = self.agent.select_action(state.get())
             _, reward, done, _ = self.env.step(action.item())
-            reward = torch.tensor([reward], device=utility.device)
 
             screen = self.env.get_screen()
             if not done:
                 next_state.push(screen)
             else:
-                self.env.reset()
-                next_state.push(self.env.get_screen())
+                reward = self.env.episode_end_reward(reward)
+                next_state.zero_push()
+            reward = torch.tensor([reward], device=utility.device)
 
             # Store the transaction in memory
             step_result = StepResult(state.get(), action, next_state.get(), reward)

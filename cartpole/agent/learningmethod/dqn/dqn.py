@@ -20,14 +20,22 @@ class DqnLearningMethod(Model):
         self.optimizer = optim.RMSprop(self.value_net.parameters())
         self.memory = ReplayMemory(10000)
 
+    @staticmethod
+    def _check_all_zeros(arr):
+        np_arr = arr.numpy()
+        return np.count_nonzero(np_arr) == 0
+
+    def _is_not_ending(self, arr):
+        return not self._check_all_zeros(arr)
+
     def optimize_model(self, target_policy):
         if len(self.memory) < utility.BATCH_SIZE:
             return
         transitions = self.memory.sample(utility.BATCH_SIZE)
         batch = StepResult.Transition(*zip(*transitions))
 
-        non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=utility.device, dtype=torch.bool)
-        non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
+        non_final_mask = torch.tensor(tuple(map(lambda s: self._is_not_ending(s), batch.next_state)), device=utility.device, dtype=torch.bool)
+        non_final_next_states = torch.cat([s for s in batch.next_state if self._is_not_ending(s)])
         state_batch = torch.cat(batch.state)
         action_batch = torch.cat(batch.action)
         reward_batch = torch.cat(batch.reward)
