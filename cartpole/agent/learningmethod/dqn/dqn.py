@@ -17,13 +17,16 @@ class DqnLearningMethod(Model):
         self.target_net = Network(n_actions).to(utility.device)
         self.target_net.load_state_dict(self.value_net.state_dict())
         self.target_net.eval()
-        self.optimizer = optim.RMSprop(self.value_net.parameters())
+        self.optimizer = optim.RMSprop(self.value_net.parameters(), lr=0.00025, alpha=0.95, eps=0.01)
         self.memory = ReplayMemory(10000)
 
     @staticmethod
     def _check_all_zeros(arr):
         np_arr = arr.numpy()
-        return np.count_nonzero(np_arr) == 0
+        flag = False
+        for i in np_arr[0]:
+            flag = flag or np.count_nonzero(i) == 0
+        return flag
 
     def _is_not_ending(self, arr):
         return not self._check_all_zeros(arr)
@@ -48,14 +51,13 @@ class DqnLearningMethod(Model):
         # Compute the expected Q values
         expected_state_action_value = (next_state_values * utility.GAMMA) + reward_batch
 
-        # Compute Huber loss
-        loss = F.smooth_l1_loss(state_action_value, expected_state_action_value.unsqueeze(1))
+        bellman_error = state_action_value - expected_state_action_value.unsqueeze(1)
+        clipped_bellman_error = bellman_error.clamp(-1, 1)
+        d_error = clipped_bellman_error * -1.0
 
         # optimize the model
         self.optimizer.zero_grad()
-        loss.backward()
-        for param in self.value_net.parameters():
-            param.grad.data.clamp_(-1, 1)
+        state_action_value.backward(d_error.data)
         self.optimizer.step()
 
     def update_target_network(self):
