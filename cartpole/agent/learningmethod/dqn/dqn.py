@@ -37,16 +37,17 @@ class DqnLearningMethod(Model):
         transitions = self.memory.sample(utility.BATCH_SIZE)
         batch = StepResult.Transition(*zip(*transitions))
 
-        non_final_mask = torch.tensor(tuple(map(lambda s: self._is_not_ending(s), batch.next_state)), device=utility.device, dtype=torch.bool)
-        non_final_next_states = torch.cat([s for s in batch.next_state if self._is_not_ending(s)])
+        non_final_mask = torch.tensor(tuple(batch.done), device=utility.device, dtype=torch.int)
+        # TODO: 4枚ずつscreenが入ってくるべき
+        non_final_next_states = torch.cat(batch.next_state)
         state_batch = torch.cat(batch.state)
         action_batch = torch.cat(batch.action)
         reward_batch = torch.cat(batch.reward)
 
         state_action_value = self.value_net(state_batch).gather(1, action_batch)
 
-        next_state_values = torch.zeros(utility.BATCH_SIZE, device=utility.device)
-        next_state_values[non_final_mask] = target_policy.select(self.target_net(non_final_next_states))
+        next_state_max_values = target_policy.select(self.target_net(non_final_next_states))
+        next_state_values = non_final_mask * next_state_max_values
 
         # Compute the expected Q values
         expected_state_action_value = (next_state_values * utility.GAMMA) + reward_batch
@@ -74,3 +75,6 @@ class DqnLearningMethod(Model):
 
     def output_net_paramertes(self):
         torch.save(self.value_net.state_dict(), utility.NET_PARAMETERS_BK_PATH)
+
+    def get_screen_history(self):
+        return self.memory.get_recent_screen()

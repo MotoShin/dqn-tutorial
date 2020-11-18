@@ -59,7 +59,8 @@ class CartPole(object):
         # (this doesn't require a copy)
         # screen = np.ascontiguousarray(screen, dtype=np.float32)
         # Resize, and add a batch dimension (BCHW)
-        return self._pillow_grayscale(screen)
+        gray_screen = self._pillow_grayscale(screen)
+        return torch.from_numpy(gray_screen / 255.0).type(utility.dtype).unsqueeze(0)
 
     def episode_end_reward(self, reward):
         return -reward

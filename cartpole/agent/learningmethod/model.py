@@ -29,3 +29,7 @@ class Model(object):
     @abstractmethod
     def output_net_paramertes(self):
         pass
+
+    @abstractmethod
+    def get_screen_history(self):
+        pass

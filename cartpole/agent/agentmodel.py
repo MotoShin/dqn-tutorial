@@ -22,5 +22,8 @@ class Agent(object):
     def save_memory(self, step_result):
         self.learning_method.save_memory(step_result)
     
+    def get_screen_history(self):
+        self.learning_method.get_screen_history()
+
     def save_parameters(self):
         self.learning_method.output_net_paramertes()
