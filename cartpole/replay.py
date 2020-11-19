@@ -1,11 +1,12 @@
 import torch
 from itertools import count
+import numpy as np
 
 import utility
 from environment.cartpole import CartPole
 from agent.learningmethod.dqn.network import Network
 from agent.policy.greedy import Greedy
-from domain.networkinput import Input
+from agent.learningmethod.replaybuffer import ReplayBuffer
 
 
 if __name__ == '__main__':
@@ -14,23 +15,22 @@ if __name__ == '__main__':
     net = Network(env.get_n_actions())
     net.load_state_dict(torch.load(utility.NET_PARAMETERS_BK_PATH))
     policy = Greedy()
+    memory = ReplayBuffer(10000, 4)
 
     screen = env.get_screen()
-    state = Input(screen)
-    next_state = Input(screen)
-    next_state.push(screen)
+    state = screen
     for i in count():
-        action = policy.select(net(state.get()))
+        memory.store_frame(state)
+        inp = torch.from_numpy(np.array([memory.encode_recent_observation()])).type(torch.FloatTensor) / 255.0
+        action = policy.select(net(inp))
         _, reward, done, _ = env.step(action.item())
         print("done: {}, reward: {}".format(done, reward))
 
         screen = env.get_screen()
-        if not done:
-            next_state.push(screen)
-        else:
+        if done:
             env.reset()
-            next_state.push(env.get_screen())
-        state.push(screen)
+            screen = env.get_screen()
+        state = screen
         if done:
             print("step: {}".format(i))
             break

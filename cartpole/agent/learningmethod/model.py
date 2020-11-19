@@ -19,6 +19,10 @@ class Model(object):
         pass
 
     @abstractmethod
+    def save_effect(self, last_idx, action, reward, done):
+        pass
+
+    @abstractmethod
     def output_value_net(self, state):
         pass
 

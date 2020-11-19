@@ -18,9 +18,11 @@ class Egreedy(PolicyModel):
     def select(self, set: torch.Tensor):
         sample = random.random()
         self.steps_done += 1
-        if sample < self.epsilon_threshold:
-            return torch.tensor([[random.randrange(self.n_action)]], device=utility.device, dtype=torch.long)
+        selected = None
+        if sample > self.epsilon_threshold:
+            selected =  Greedy().select(set)
         else:
-            return Greedy().select(set)
+            selected = torch.tensor([[random.randrange(self.n_action)]], device=utility.device, dtype=torch.long)
         self.epsilon_threshold *= self.epsilon_decay
-        self.epsilon_decay = max(self.epsilon_end, self.epsilon_threshold)
+        self.epsilon_threshold = max(self.epsilon_end, self.epsilon_threshold)
+        return selected

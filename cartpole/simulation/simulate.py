@@ -1,6 +1,7 @@
 import torch
 from itertools import count
 import random
+import numpy as np
 
 import utility
 from agent.agentmodel import Agent
@@ -57,13 +58,16 @@ class Simulate(object):
     def one_episode_start(self):
         current_screen = self.env.get_screen()
         state = current_screen
-        next_state = current_screen
         sum_reward = 0.0
         for t in count():
-            if t > utility.BATCH_SIZE:
-                action = self.agent.select_action(self.agent.get_screen_history())
-            else:
-                action = torch.tensor([[random.randrange(self.env.get_n_actions())]])
+            # Store frame
+            last_idx = self.agent.save_memory(state)
+
+            # Chose action
+            # TODO: actionをtensor -> intに変更
+            inp = torch.from_numpy(np.array([self.agent.get_screen_history()])).type(torch.FloatTensor) / 255.0
+            action = self.agent.select_action(inp)
+            # Action
             _, reward, done, _ = self.env.step(action.item())
 
             screen = self.env.get_screen()
@@ -71,17 +75,13 @@ class Simulate(object):
                 reward = self.env.episode_end_reward(reward)
                 self.env.reset()
                 screen = self.env.get_screen()
-            next_state = screen
-            reward = torch.tensor([reward], device=utility.device)
-
-            # Store the transaction in memory
-            step_result = StepResult(state, action, next_state, reward, done)
-            self.agent.save_memory(step_result)
-            
             # Move to the next state
-            state = next_state
-            sum_reward += reward.item()
+            sum_reward += reward
+            state = screen
 
+            # Store the effect in memory
+            self.agent.save_effect(last_idx, action.item(), reward, done)
+            
             self.agent.update()
             if done:
                 self.dulation.append(t + 1)

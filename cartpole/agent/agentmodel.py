@@ -20,10 +20,13 @@ class Agent(object):
         self.learning_method.update_target_network()
 
     def save_memory(self, step_result):
-        self.learning_method.save_memory(step_result)
+        return self.learning_method.save_memory(step_result)
+
+    def save_effect(self, last_idx, action, reward, done):
+        self.learning_method.save_effect(last_idx, action, reward, done)
     
     def get_screen_history(self):
-        self.learning_method.get_screen_history()
+        return self.learning_method.get_screen_history()
 
     def save_parameters(self):
         self.learning_method.output_net_paramertes()
