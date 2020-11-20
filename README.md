@@ -6,3 +6,4 @@
 
 ## 参考
 - [バッチノーマライゼーション](https://qiita.com/omiita/items/01855ff13cc6d3720ea4)
+- [pytorch-dqn](https://github.com/transedward/pytorch-dqn)
