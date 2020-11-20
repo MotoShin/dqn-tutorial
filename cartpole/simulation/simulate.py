@@ -68,7 +68,7 @@ class Simulate(object):
             inp = torch.from_numpy(np.array([self.agent.get_screen_history()])).type(torch.FloatTensor) / 255.0
             action = self.agent.select_action(inp)
             # Action
-            _, reward, done, _ = self.env.step(action.item())
+            _, reward, done, _ = self.env.step(action)
 
             screen = self.env.get_screen()
             if done:
@@ -80,7 +80,7 @@ class Simulate(object):
             state = screen
 
             # Store the effect in memory
-            self.agent.save_effect(last_idx, action.item(), reward, done)
+            self.agent.save_effect(last_idx, action, reward, done)
             
             self.agent.update()
             if done:

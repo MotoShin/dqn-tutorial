@@ -20,6 +20,6 @@ class Egreedy(PolicyModel):
         if sample > self.exploration_schedule.value(self.steps_done):
             selected =  Greedy().select(set)
         else:
-            selected = torch.tensor([[random.randrange(self.n_action)]], device=utility.device, dtype=torch.long)
+            selected = random.randrange(self.n_action)
         self.steps_done += 1
         return selected
