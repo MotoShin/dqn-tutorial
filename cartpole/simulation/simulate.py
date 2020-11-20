@@ -10,8 +10,6 @@ from agent.policy.greedy import Greedy
 from agent.policy.egreedy import Egreedy
 from environment.cartpole import CartPole
 from datautil.datashaping import DataShaping
-from domain.networkinput import Input
-from domain.stepresult import StepResult
 
 
 class Simulate(object):
@@ -64,7 +62,6 @@ class Simulate(object):
             last_idx = self.agent.save_memory(state)
 
             # Chose action
-            # TODO: actionをtensor -> intに変更
             inp = torch.from_numpy(np.array([self.agent.get_screen_history()])).type(torch.FloatTensor) / 255.0
             action = self.agent.select_action(inp)
             # Action
