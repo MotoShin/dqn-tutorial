@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 class Model(object):
     @abstractmethod
-    def __init__(self, screen_height, screen_width, n_actions):
+    def __init__(self, n_actions):
         pass
 
     @abstractmethod
@@ -15,11 +15,15 @@ class Model(object):
         pass
 
     @abstractmethod
-    def save_memory(self, state, action, next_state, reward):
+    def save_memory(self, step_result):
         pass
 
     @abstractmethod
-    def output_policy_net(self, state):
+    def save_effect(self, last_idx, action, reward, done):
+        pass
+
+    @abstractmethod
+    def output_value_net(self, state):
         pass
 
     @abstractmethod
@@ -28,4 +32,8 @@ class Model(object):
 
     @abstractmethod
     def output_net_paramertes(self):
+        pass
+
+    @abstractmethod
+    def get_screen_history(self):
         pass

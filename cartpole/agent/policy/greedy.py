@@ -1,13 +1,12 @@
 import torch
 
-from agent.policy.policymodel import PolicyModel
 
-
-class Greedy(PolicyModel):
-    def select(self, set: torch.Tensor):
+class Greedy(object):
+    @staticmethod
+    def select(set: torch.Tensor):
         if len(set) == 1:
             # select action
-            return set.max(1)[1].view(1, 1)
+            return set.max(1)[1].view(1, 1).item()
         else:
             # replay buffer
-            return set.max(1)[0].detach()
+            return set.detach().max(1)[0]

@@ -1,5 +1,7 @@
 import torch
 from itertools import count
+import random
+import numpy as np
 
 import utility
 from agent.agentmodel import Agent
@@ -21,9 +23,8 @@ class Simulate(object):
 
     def agent_reset(self):
         self.env.reset()
-        _, _, screen_height, screen_width = self.env.get_screen().shape
         self.agent = Agent(
-            learning_method=DqnLearningMethod(screen_height, screen_width, self.env.get_n_actions()),
+            learning_method=DqnLearningMethod(self.env.get_n_actions()),
             behavior_policy=Egreedy(self.env.get_n_actions()),
             target_policy=Greedy()
         )
@@ -53,29 +54,31 @@ class Simulate(object):
                 self.agent.update_target_network()
 
     def one_episode_start(self):
-        last_screen = self.env.get_screen()
         current_screen = self.env.get_screen()
-        state = current_screen - last_screen
+        state = current_screen
         sum_reward = 0.0
         for t in count():
-            action = self.agent.select_action(state)
-            _, reward, done, _ = self.env.step(action.item())
-            reward = torch.tensor([reward], device=utility.device)
+            # Store frame
+            last_idx = self.agent.save_memory(state)
 
-            last_screen = current_screen
-            current_screen = self.env.get_screen()
-            if not done:
-                next_state = current_screen - last_screen
-            else:
-                next_state = None
+            # Chose action
+            inp = torch.from_numpy(np.array([self.agent.get_screen_history()])).type(torch.FloatTensor) / 255.0
+            action = self.agent.select_action(inp)
+            # Action
+            _, reward, done, _ = self.env.step(action)
 
-            # Store the transaction in memory
-            self.agent.save_memory(state, action, next_state, reward)
-            
+            screen = self.env.get_screen()
+            if done:
+                reward = self.env.episode_end_reward(reward)
+                self.env.reset()
+                screen = self.env.get_screen()
             # Move to the next state
-            state = next_state
-            sum_reward += reward.item()
+            sum_reward += reward
+            state = screen
 
+            # Store the effect in memory
+            self.agent.save_effect(last_idx, action, reward, done)
+            
             self.agent.update()
             if done:
                 self.dulation.append(t + 1)

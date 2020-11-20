@@ -11,7 +11,7 @@ class Agent(object):
         self.target_policy = target_policy
 
     def select_action(self, state):
-        return self.behavior_policy.select(self.learning_method.output_policy_net(state))
+        return self.behavior_policy.select(self.learning_method.output_value_net(state))
 
     def update(self):
         self.learning_method.optimize_model(self.target_policy)
@@ -19,8 +19,14 @@ class Agent(object):
     def update_target_network(self):
         self.learning_method.update_target_network()
 
-    def save_memory(self, state, action, next_state, reward):
-        self.learning_method.save_memory(state, action, next_state, reward)
+    def save_memory(self, step_result):
+        return self.learning_method.save_memory(step_result)
+
+    def save_effect(self, last_idx, action, reward, done):
+        self.learning_method.save_effect(last_idx, action, reward, done)
+    
+    def get_screen_history(self):
+        return self.learning_method.get_screen_history()
 
     def save_parameters(self):
         self.learning_method.output_net_paramertes()
