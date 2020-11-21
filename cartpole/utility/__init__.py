@@ -25,3 +25,6 @@ NUM_EPISODE = 1000
 NUM_SIMULATION = 1
 
 NET_PARAMETERS_BK_PATH = 'output/value_net_bk.pth'
+
+#### Soft Update Setting ####
+TAU = 1e-3
