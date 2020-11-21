@@ -18,7 +18,6 @@ class DqnLearningMethod(Model):
         self.target_net.eval()
         self.optimizer = optim.RMSprop(self.value_net.parameters(), lr=utility.NW_LEARNING_RATE, alpha=utility.NW_ALPHA, eps=utility.NW_EPS)
         self.memory = ReplayBuffer(utility.NUM_REPLAY_BUFFER, utility.FRAME_NUM)
-        self.dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 
     def optimize_model(self, target_policy):
         if not self.memory.can_sample(utility.BATCH_SIZE):
@@ -26,11 +25,11 @@ class DqnLearningMethod(Model):
 
         obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = self.memory.sample(utility.BATCH_SIZE)
 
-        obs_batch = torch.from_numpy(obs_batch).type(self.dtype) / 255.0
+        obs_batch = torch.from_numpy(obs_batch).type(utility.dtype) / 255.0
         act_batch = torch.from_numpy(act_batch).long()
         rew_batch = torch.from_numpy(rew_batch)
-        next_obs_batch = torch.from_numpy(next_obs_batch).type(self.dtype) / 255.0
-        not_done_mask = torch.from_numpy(1 - done_mask).type(self.dtype)
+        next_obs_batch = torch.from_numpy(next_obs_batch).type(utility.dtype) / 255.0
+        not_done_mask = torch.from_numpy(1 - done_mask).type(utility.dtype)
 
         # Q values
         current_Q_values = self.value_net(obs_batch).gather(1, act_batch.unsqueeze(1)).squeeze(1)
