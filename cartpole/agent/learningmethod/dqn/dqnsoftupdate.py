@@ -16,8 +16,8 @@ class DqnSoftUpdateLearningMethod(Model):
         self.target_net = Network(n_actions).to(utility.device)
         self.target_net.load_state_dict(self.value_net.state_dict())
         self.target_net.eval()
-        self.optimizer = optim.RMSprop(self.value_net.parameters(), lr=0.00025, alpha=0.95, eps=0.01)
-        self.memory = ReplayBuffer(10000, 4)
+        self.optimizer = optim.RMSprop(self.value_net.parameters(), lr=utility.NW_LEARNING_RATE, alpha=utility.NW_ALPHA, eps=utility.NW_EPS)
+        self.memory = ReplayBuffer(utility.NUM_REPLAY_BUFFER, utility.FRAME_NUM)
         self.dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 
     def optimize_model(self, target_policy):

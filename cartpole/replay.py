@@ -15,7 +15,7 @@ if __name__ == '__main__':
     net = Network(env.get_n_actions())
     net.load_state_dict(torch.load(utility.NET_PARAMETERS_BK_PATH))
     policy = Greedy()
-    memory = ReplayBuffer(10000, 4)
+    memory = ReplayBuffer(utility.NUM_REPLAY_BUFFER, utility.FRAME_NUM)
 
     screen = env.get_screen()
     state = screen
