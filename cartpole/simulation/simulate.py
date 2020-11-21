@@ -44,6 +44,7 @@ class Simulate(object):
                 DataShaping.makeCsv(self.episode_rewards, ['episode', 'reward'], "reward_{}.csv".format(i_simulation+1))
         DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], 'dulation.csv')
         DataShaping.makeCsv(self.episode_rewards, ['episode', 'reward'], 'reward.csv')
+        self.env.close()
         print('Complete')
 
     def one_simulate_start(self, simulation_num):
