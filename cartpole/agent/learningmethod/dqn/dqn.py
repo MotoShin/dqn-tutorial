@@ -12,8 +12,8 @@ from agent.learningmethod.model import Model
 
 class DqnLearningMethod(Model):
     def __init__(self, n_actions):
-        self.value_net = Network(n_actions).to(utility.device)
-        self.target_net = Network(n_actions).to(utility.device)
+        self.value_net = Network(n_actions).type(utility.dtype)
+        self.target_net = Network(n_actions).type(utility.dtype)
         self.target_net.load_state_dict(self.value_net.state_dict())
         self.target_net.eval()
         self.optimizer = optim.RMSprop(self.value_net.parameters(), lr=utility.NW_LEARNING_RATE, alpha=utility.NW_ALPHA, eps=utility.NW_EPS)
