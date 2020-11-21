@@ -34,7 +34,7 @@ class Simulate(object):
             self.agent_reset()
             self.dulation = []
             self.reward = []
-            self.one_simulate_start()
+            self.one_simulate_start(i_simulation)
             self.agent.save_parameters()
             self.episode_dulations.append(self.dulation)
             self.episode_rewards.append(self.reward)
@@ -46,14 +46,15 @@ class Simulate(object):
         DataShaping.makeCsv(self.episode_rewards, ['episode', 'reward'], 'reward.csv')
         print('Complete')
 
-    def one_simulate_start(self):
+    def one_simulate_start(self, simulation_num):
         for i_episode in range(utility.NUM_EPISODE):
             self.env.reset()
-            self.one_episode_start()
+            self.one_episode_start(simulation_num, i_episode)
             if i_episode % utility.TARGET_UPDATE == 0:
                 self.agent.update_target_network()
 
-    def one_episode_start(self):
+    def one_episode_start(self, simulation_num, episode_num):
+        self.output_progress(simulation_num, episode_num)
         current_screen = self.env.get_screen()
         state = current_screen
         sum_reward = 0.0
@@ -84,3 +85,11 @@ class Simulate(object):
                 self.dulation.append(t + 1)
                 self.reward.append(sum_reward)
                 break
+
+    def output_progress(self, simulate_num, episode_num):
+        simulate_progress_late = float((simulate_num + 1) / utility.NUM_SIMULATION)
+        episode_progress_late = float((episode_num + 1) / utility.NUM_EPISODE)
+        late = simulate_progress_late * episode_progress_late
+        late_percent = late * 100
+        if (late_percent % 10 == 0):
+            print("progress: {: >3} %".format(late_percent))
