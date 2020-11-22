@@ -11,7 +11,7 @@ BATCH_SIZE = 128
 GAMMA = 0.999
 TARGET_UPDATE = 10
 NET_PARAMETERS_BK_PATH = 'output/value_net_bk.pth'
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+USE_CUDA = torch.cuda.is_available()
 dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 # network parameters
 NW_LEARNING_RATE = 0.00025

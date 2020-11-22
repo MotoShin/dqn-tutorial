@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+import torch.autograd as autograd
 import numpy as np
 
 import utility
@@ -25,11 +26,15 @@ class DqnLearningMethod(Model):
 
         obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = self.memory.sample(utility.BATCH_SIZE)
 
-        obs_batch = torch.from_numpy(obs_batch).type(utility.dtype) / 255.0
-        act_batch = torch.from_numpy(act_batch).long()
-        rew_batch = torch.from_numpy(rew_batch)
-        next_obs_batch = torch.from_numpy(next_obs_batch).type(utility.dtype) / 255.0
-        not_done_mask = torch.from_numpy(1 - done_mask).type(utility.dtype)
+        obs_batch = Variable(torch.from_numpy(obs_batch).type(utility.dtype) / 255.0)
+        act_batch = Variable(torch.from_numpy(act_batch).long())
+        rew_batch = Variable(torch.from_numpy(rew_batch))
+        next_obs_batch = Variable(torch.from_numpy(next_obs_batch).type(utility.dtype) / 255.0)
+        not_done_mask = Variable(torch.from_numpy(1 - done_mask)).type(utility.dtype)
+
+        if utility.USE_CUDA:
+            act_batch = act_batch.cuda()
+            rew_batch = act_batch.cuda()
 
         # Q values
         current_Q_values = self.value_net(obs_batch).gather(1, act_batch.unsqueeze(1)).squeeze(1)
@@ -68,3 +73,9 @@ class DqnLearningMethod(Model):
 
     def get_screen_history(self):
         return self.memory.encode_recent_observation()
+
+class Variable(autograd.Variable):
+    def __init__(self, data, *args, **kwargs):
+        if utility.USE_CUDA:
+            data = data.cuda()
+        super(Variable, self).__init__(data, *args, **kwargs)
