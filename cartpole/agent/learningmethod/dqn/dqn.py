@@ -9,6 +9,7 @@ import utility
 from agent.learningmethod.dqn.network import Network
 from agent.learningmethod.replaybuffer import ReplayBuffer
 from agent.learningmethod.model import Model, Variable
+from simulation.values.agnets import AgentsNames
 
 
 class DqnLearningMethod(Model):
@@ -75,4 +76,4 @@ class DqnLearningMethod(Model):
         return self.memory.encode_recent_observation()
 
     def get_method_name(self):
-        return "dqn"
+        return AgentsNames.DQN.value

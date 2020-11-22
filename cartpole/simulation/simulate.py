@@ -11,22 +11,27 @@ from agent.policy.greedy import Greedy
 from agent.policy.egreedy import Egreedy
 from environment.cartpole import CartPole
 from datautil.datashaping import DataShaping
+from simulation.values.agnets import AgentsNames
 
 
 class Simulate(object):
-    def __init__(self):
+    def __init__(self, agent_name):
         self.env = CartPole()
         self.agent = None
         self.dulation = []
         self.episode_dulations = []
         self.reward = []
         self.episode_rewards = []
+        self.agent_name = AgentsNames.value_of(agent_name)
 
     def agent_reset(self):
         self.env.reset()
+        if self.agent_name == AgentsNames.DQN_SOFTUPFATE:
+            learning_method = DqnSoftUpdateLearningMethod(self.env.get_n_actions())
+        else:
+            learning_method = DqnLearningMethod(self.env.get_n_actions())
         self.agent = Agent(
-            # learning_method=DqnLearningMethod(self.env.get_n_actions()),
-            learning_method=DqnSoftUpdateLearningMethod(self.env.get_n_actions()),
+            learning_method=learning_method,
             behavior_policy=Egreedy(self.env.get_n_actions()),
             target_policy=Greedy()
         )
