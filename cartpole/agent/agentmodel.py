@@ -30,3 +30,6 @@ class Agent(object):
 
     def save_parameters(self):
         self.learning_method.output_net_paramertes()
+
+    def get_method_name(self):
+        return self.learning_method.get_method_name()

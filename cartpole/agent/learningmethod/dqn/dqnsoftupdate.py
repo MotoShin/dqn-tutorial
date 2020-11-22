@@ -2,23 +2,23 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+import torch.autograd as autograd
 import numpy as np
 
 import utility
 from agent.learningmethod.dqn.network import Network
 from agent.learningmethod.replaybuffer import ReplayBuffer
-from agent.learningmethod.model import Model
+from agent.learningmethod.model import Model, Variable
 
 
 class DqnSoftUpdateLearningMethod(Model):
     def __init__(self, n_actions):
-        self.value_net = Network(n_actions).to(utility.device)
-        self.target_net = Network(n_actions).to(utility.device)
+        self.value_net = Network(n_actions).type(utility.dtype)
+        self.target_net = Network(n_actions).type(utility.dtype)
         self.target_net.load_state_dict(self.value_net.state_dict())
         self.target_net.eval()
         self.optimizer = optim.RMSprop(self.value_net.parameters(), lr=utility.NW_LEARNING_RATE, alpha=utility.NW_ALPHA, eps=utility.NW_EPS)
         self.memory = ReplayBuffer(utility.NUM_REPLAY_BUFFER, utility.FRAME_NUM)
-        self.dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 
     def optimize_model(self, target_policy):
         if not self.memory.can_sample(utility.BATCH_SIZE):
@@ -26,11 +26,15 @@ class DqnSoftUpdateLearningMethod(Model):
 
         obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = self.memory.sample(utility.BATCH_SIZE)
 
-        obs_batch = torch.from_numpy(obs_batch).type(self.dtype) / 255.0
-        act_batch = torch.from_numpy(act_batch).long()
-        rew_batch = torch.from_numpy(rew_batch)
-        next_obs_batch = torch.from_numpy(next_obs_batch).type(self.dtype) / 255.0
-        not_done_mask = torch.from_numpy(1 - done_mask).type(self.dtype)
+        obs_batch = Variable(torch.from_numpy(obs_batch).type(utility.dtype) / 255.0)
+        act_batch = Variable(torch.from_numpy(act_batch).long())
+        rew_batch = Variable(torch.from_numpy(rew_batch))
+        next_obs_batch = Variable(torch.from_numpy(next_obs_batch).type(utility.dtype) / 255.0)
+        not_done_mask = Variable(torch.from_numpy(1 - done_mask)).type(utility.dtype)
+
+        if utility.USE_CUDA:
+            act_batch = act_batch.cuda()
+            rew_batch = act_batch.cuda()
 
         # Q values
         current_Q_values = self.value_net(obs_batch).gather(1, act_batch.unsqueeze(1)).squeeze(1)
@@ -50,14 +54,14 @@ class DqnSoftUpdateLearningMethod(Model):
         self.optimizer.step()
 
         # target network soft update
-        _soft_update_target_network()
+        self._soft_update_target_network()
 
     def update_target_network(self):
         pass
 
     def _soft_update_target_network(self):
         for target_param, value_param in zip(self.target_net.parameters(), self.value_net.parameters()):
-            target_param.date.copy_(utility.TAU * value_param.date + (1.0 - utility.TAU) * target_param.data)
+            target_param.data.copy_(utility.TAU * value_param.data + (1.0 - utility.TAU) * target_param.data)
 
     def save_memory(self, state):
         return self.memory.store_frame(state)
@@ -76,3 +80,6 @@ class DqnSoftUpdateLearningMethod(Model):
 
     def get_screen_history(self):
         return self.memory.encode_recent_observation()
+
+    def get_method_name(self):
+        return "dqn-softupdate"

@@ -8,7 +8,7 @@ import numpy as np
 import utility
 from agent.learningmethod.dqn.network import Network
 from agent.learningmethod.replaybuffer import ReplayBuffer
-from agent.learningmethod.model import Model
+from agent.learningmethod.model import Model, Variable
 
 
 class DqnLearningMethod(Model):
@@ -74,8 +74,5 @@ class DqnLearningMethod(Model):
     def get_screen_history(self):
         return self.memory.encode_recent_observation()
 
-class Variable(autograd.Variable):
-    def __init__(self, data, *args, **kwargs):
-        if utility.USE_CUDA:
-            data = data.cuda()
-        super(Variable, self).__init__(data, *args, **kwargs)
+    def get_method_name(self):
+        return "dqn"

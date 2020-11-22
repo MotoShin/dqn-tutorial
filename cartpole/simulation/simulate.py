@@ -6,6 +6,7 @@ import numpy as np
 import utility
 from agent.agentmodel import Agent
 from agent.learningmethod.dqn.dqn import DqnLearningMethod
+from agent.learningmethod.dqn.dqnsoftupdate import DqnSoftUpdateLearningMethod
 from agent.policy.greedy import Greedy
 from agent.policy.egreedy import Egreedy
 from environment.cartpole import CartPole
@@ -24,7 +25,8 @@ class Simulate(object):
     def agent_reset(self):
         self.env.reset()
         self.agent = Agent(
-            learning_method=DqnLearningMethod(self.env.get_n_actions()),
+            # learning_method=DqnLearningMethod(self.env.get_n_actions()),
+            learning_method=DqnSoftUpdateLearningMethod(self.env.get_n_actions()),
             behavior_policy=Egreedy(self.env.get_n_actions()),
             target_policy=Greedy()
         )
@@ -40,10 +42,10 @@ class Simulate(object):
             self.episode_rewards.append(self.reward)
             if (i_simulation + 1) % 10 == 0:
                 print(i_simulation + 1)
-                DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], "dulation_{}.csv".format(i_simulation+1))
-                DataShaping.makeCsv(self.episode_rewards, ['episode', 'reward'], "reward_{}.csv".format(i_simulation+1))
-        DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], 'dulation.csv')
-        DataShaping.makeCsv(self.episode_rewards, ['episode', 'reward'], 'reward.csv')
+                DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], "{}_dulation_{}.csv".format(self.agent.get_method_name, i_simulation+1))
+                DataShaping.makeCsv(self.episode_rewards, ['episode', 'reward'], "{}_reward_{}.csv".format(self.agent.get_method_name(), i_simulation+1))
+        DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], "{}_dulation.csv".format(self.agent.get_method_name()))
+        DataShaping.makeCsv(self.episode_rewards, ['episode', 'reward'], "{}_reward.csv".format(self.agent.get_method_name()))
         self.env.close()
         print('Complete')
 

@@ -21,7 +21,7 @@ if __name__ == '__main__':
     state = screen
     for i in count():
         memory.store_frame(state)
-        inp = torch.from_numpy(np.array([memory.encode_recent_observation()])).type(torch.FloatTensor) / 255.0
+        inp = torch.from_numpy(np.array([memory.encode_recent_observation()])).type(utility.dtype) / 255.0
         action = policy.select(net(inp))
         _, reward, done, _ = env.step(action)
         print("done: {}, reward: {}".format(done, reward))
