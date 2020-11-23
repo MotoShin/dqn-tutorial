@@ -5,6 +5,7 @@ import numpy as np
 import utility
 from environment.cartpole import CartPole
 from agent.learningmethod.dqn.network import Network
+from agent.learningmethod.dqn.dqn import Variable
 from agent.policy.greedy import Greedy
 from agent.learningmethod.replaybuffer import ReplayBuffer
 
@@ -22,7 +23,7 @@ if __name__ == '__main__':
     for i in count():
         memory.store_frame(state)
         inp = torch.from_numpy(np.array([memory.encode_recent_observation()])).type(utility.dtype) / 255.0
-        action = policy.select(net(inp))
+        action = policy.select(net(Variable(inp)))
         _, reward, done, _ = env.step(action)
         print("done: {}, reward: {}".format(done, reward))
 
