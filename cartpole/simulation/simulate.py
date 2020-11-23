@@ -74,7 +74,7 @@ class Simulate(object):
             inp = torch.from_numpy(np.array([self.agent.get_screen_history()])).type(torch.FloatTensor).type(utility.dtype) / 255.0
             with torch.no_grad():
                 inp = Variable(inp)
-            action = self.agent.select_action(inp)
+                action = self.agent.select_action(inp)
             # Action
             _, reward, done, _ = self.env.step(action)
 
