@@ -14,10 +14,10 @@ class Egreedy(PolicyModel):
         self.n_action = n_action
         self.exploration_schedule = LinearSchedule(utility.EPS_TIMESTEPS, utility.EPS_END, utility.EPS_START)
 
-    def select(self, set: torch.Tensor):
+    def select(self, set: torch.Tensor, epi):
         sample = random.random()
         selected = None
-        if sample > self.exploration_schedule.value(self.steps_done):
+        if sample > self.exploration_schedule.value(epi):
             selected =  Greedy().select(set)
         else:
             selected = random.randrange(self.n_action)
