@@ -21,6 +21,9 @@ class DqnLearningMethod(Model):
         self.optimizer = optim.RMSprop(self.value_net.parameters(), lr=utility.NW_LEARNING_RATE, alpha=utility.NW_ALPHA, eps=utility.NW_EPS)
         self.memory = ReplayBuffer(utility.NUM_REPLAY_BUFFER, utility.FRAME_NUM)
 
+        self.value_net.to(utility.device)
+        self.target_net.to(utility.device)
+
     def optimize_model(self, target_policy):
         if not self.memory.can_sample(utility.BATCH_SIZE):
             return
@@ -67,6 +70,7 @@ class DqnLearningMethod(Model):
         output = None
         with torch.no_grad():
             state = Variable(state)
+            state.to(utility.device)
             output = self.target_net(state)
         return output
 
@@ -74,6 +78,7 @@ class DqnLearningMethod(Model):
         output = None
         with torch.no_grad():
             state = Variable(state)
+            state.to(utility.device)
             output = self.value_net(state)
         return output
 
