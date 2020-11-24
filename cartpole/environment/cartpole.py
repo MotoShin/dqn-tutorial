@@ -77,3 +77,6 @@ class CartPole(object):
     def step(self, action):
         self.step_num += 1
         return self.env.step(action)
+
+    def close(self):
+        self.env.close()

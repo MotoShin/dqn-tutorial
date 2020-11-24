@@ -1,4 +1,7 @@
 from abc import ABCMeta, abstractmethod
+import torch.autograd as autograd
+
+import utility
 
 
 class Model(object):
@@ -37,3 +40,13 @@ class Model(object):
     @abstractmethod
     def get_screen_history(self):
         pass
+
+    @abstractmethod
+    def get_method_name(self):
+        pass
+
+class Variable(autograd.Variable):
+    def __init__(self, data, *args, **kwargs):
+        if utility.USE_CUDA:
+            data = data.cuda()
+        super(Variable, self).__init__(data, *args, **kwargs)

@@ -12,7 +12,7 @@ from agent.learningmethod.model import Model, Variable
 from simulation.values.agnets import AgentsNames
 
 
-class DqnLearningMethod(Model):
+class DqnSoftUpdateLearningMethod(Model):
     def __init__(self, n_actions):
         self.value_net = Network(n_actions).type(utility.dtype)
         self.target_net = Network(n_actions).type(utility.dtype)
@@ -54,8 +54,15 @@ class DqnLearningMethod(Model):
         current_Q_values.backward(d_error.data)
         self.optimizer.step()
 
+        # target network soft update
+        self._soft_update_target_network()
+
     def update_target_network(self):
-        self.target_net.load_state_dict(self.value_net.state_dict())
+        pass
+
+    def _soft_update_target_network(self):
+        for target_param, value_param in zip(self.target_net.parameters(), self.value_net.parameters()):
+            target_param.data.copy_(utility.TAU * value_param.data + (1.0 - utility.TAU) * target_param.data)
 
     def save_memory(self, state):
         return self.memory.store_frame(state)
@@ -76,4 +83,4 @@ class DqnLearningMethod(Model):
         return self.memory.encode_recent_observation()
 
     def get_method_name(self):
-        return AgentsNames.DQN.value
+        return AgentsNames.DQN_SOFTUPFATE.value

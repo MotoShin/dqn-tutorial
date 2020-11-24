@@ -10,8 +10,8 @@ class Agent(object):
         # 推定方策
         self.target_policy = target_policy
 
-    def select_action(self, state):
-        return self.behavior_policy.select(self.learning_method.output_value_net(state))
+    def select_action(self, state, epi):
+        return self.behavior_policy.select(self.learning_method.output_value_net(state), epi)
 
     def update(self):
         self.learning_method.optimize_model(self.target_policy)
@@ -30,3 +30,6 @@ class Agent(object):
 
     def save_parameters(self):
         self.learning_method.output_net_paramertes()
+
+    def get_method_name(self):
+        return self.learning_method.get_method_name()
