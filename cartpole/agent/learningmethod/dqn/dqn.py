@@ -14,15 +14,13 @@ from simulation.values.agnets import AgentsNames
 
 class DqnLearningMethod(Model):
     def __init__(self, n_actions):
-        self.value_net = Network(n_actions).type(utility.dtype)
+        self.value_net = Network(n_actions).type(utility.dtype).to(device=utility.device)
         self.target_net = Network(n_actions).type(utility.dtype)
         self.target_net.load_state_dict(self.value_net.state_dict())
         self.target_net.eval()
+        self.target_net.to(device=utility.device)
         self.optimizer = optim.RMSprop(self.value_net.parameters(), lr=utility.NW_LEARNING_RATE, alpha=utility.NW_ALPHA, eps=utility.NW_EPS)
         self.memory = ReplayBuffer(utility.NUM_REPLAY_BUFFER, utility.FRAME_NUM)
-
-        self.value_net.to(device=utility.device)
-        self.target_net.to(device=utility.device)
 
     def optimize_model(self, target_policy):
         if not self.memory.can_sample(utility.BATCH_SIZE):
