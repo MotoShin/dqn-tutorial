@@ -21,8 +21,8 @@ class DqnLearningMethod(Model):
         self.optimizer = optim.RMSprop(self.value_net.parameters(), lr=utility.NW_LEARNING_RATE, alpha=utility.NW_ALPHA, eps=utility.NW_EPS)
         self.memory = ReplayBuffer(utility.NUM_REPLAY_BUFFER, utility.FRAME_NUM)
 
-        self.value_net.to(utility.device)
-        self.target_net.to(utility.device)
+        self.value_net.to(device=utility.device)
+        self.target_net.to(device=utility.device)
 
     def optimize_model(self, target_policy):
         if not self.memory.can_sample(utility.BATCH_SIZE):
@@ -30,11 +30,11 @@ class DqnLearningMethod(Model):
 
         obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = self.memory.sample(utility.BATCH_SIZE)
 
-        obs_batch = Variable(torch.from_numpy(obs_batch).to(utility.device).type(utility.dtype) / 255.0)
-        act_batch = Variable(torch.from_numpy(act_batch).to(utility.device).long())
-        rew_batch = Variable(torch.from_numpy(rew_batch).to(utility.device))
-        next_obs_batch = Variable(torch.from_numpy(next_obs_batch).to(utility.device).type(utility.dtype) / 255.0)
-        not_done_mask = Variable(torch.from_numpy(1 - done_mask)).to(utility.device).type(utility.dtype)
+        obs_batch = Variable(torch.from_numpy(obs_batch).type(utility.dtype) / 255.0)
+        act_batch = Variable(torch.from_numpy(act_batch).long())
+        rew_batch = Variable(torch.from_numpy(rew_batch))
+        next_obs_batch = Variable(torch.from_numpy(next_obs_batch).type(utility.dtype) / 255.0)
+        not_done_mask = Variable(torch.from_numpy(1 - done_mask)).type(utility.dtype)
 
         if utility.USE_CUDA:
             act_batch = act_batch.cuda()
