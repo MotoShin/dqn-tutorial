@@ -5,7 +5,7 @@ import numpy as np
 
 import utility
 from agent.agentmodel import Agent
-from agent.learningmethod.dqn.dqn import DqnLearningMethod, Variable
+from agent.learningmethod.dqn.dqn import DqnLearningMethod
 from agent.learningmethod.dqn.dqnsoftupdate import DqnSoftUpdateLearningMethod
 from agent.policy.greedy import Greedy
 from agent.policy.egreedy import Egreedy
@@ -72,9 +72,7 @@ class Simulate(object):
 
             # Chose action
             inp = torch.from_numpy(np.array([self.agent.get_screen_history()])).type(torch.FloatTensor).type(utility.dtype) / 255.0
-            with torch.no_grad():
-                inp = Variable(inp)
-                action = self.agent.select_action(inp, episode_num)
+            action = self.agent.select_action(inp, episode_num)
             # Action
             _, reward, done, _ = self.env.step(action)
 

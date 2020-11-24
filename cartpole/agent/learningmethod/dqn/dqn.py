@@ -64,10 +64,18 @@ class DqnLearningMethod(Model):
         self.memory.store_effect(last_idx, action, reward, done)
 
     def output_target_net(self, state):
-        return self.target_net(state)
+        output = None
+        with torch.no_grad():
+            state = Variable(state)
+            output = self.target_net(state)
+        return output
 
     def output_value_net(self, state):
-        return self.value_net(state)
+        output = None
+        with torch.no_grad():
+            state = Variable(state)
+            output = self.value_net(state)
+        return output
 
     def output_net_paramertes(self):
         torch.save(self.value_net.state_dict(), utility.NET_PARAMETERS_BK_PATH)
