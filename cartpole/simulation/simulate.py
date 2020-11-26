@@ -7,7 +7,6 @@ import utility
 from agent.agentmodel import Agent
 from agent.learningmethod.dqn.dqn import DqnLearningMethod
 from agent.learningmethod.dqn.dqnsoftupdate import DqnSoftUpdateLearningMethod
-from agent.learningmethod.model import Variable
 from agent.policy.greedy import Greedy
 from agent.policy.egreedy import Egreedy
 from environment.cartpole import CartPole
@@ -73,7 +72,7 @@ class Simulate(object):
 
             # Chose action
             recent_screen = self.agent.get_screen_history()
-            inp = Variable(torch.from_numpy(np.array([recent_screen])).type(utility.dtype) / 255.0)
+            inp = torch.from_numpy(np.array([recent_screen])).type(utility.dtype) / 255.0
             action = self.agent.select_action(inp, episode_num)
             # Action
             _, reward, done, _ = self.env.step(action)
