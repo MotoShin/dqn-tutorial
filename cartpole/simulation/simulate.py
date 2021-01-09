@@ -95,10 +95,8 @@ class Simulate(object):
                 self.reward.append(sum_reward)
                 break
 
-    def output_progress(self, simulate_num, episode_num):
-        simulate_progress_late = float((simulate_num + 1) / utility.NUM_SIMULATION)
-        episode_progress_late = float((episode_num + 1) / utility.NUM_EPISODE)
-        late = simulate_progress_late * episode_progress_late
+    def output_progress(simulate_num, episode_num):
+        late = float((simulate_num * SIMULATION_NUM + episode_num) / (SIMULATION_NUM * EPISODE_NUM))
         late_percent = late * 100
         if (late_percent % 10 == 0):
             print("progress: {: >3} %".format(late_percent))
