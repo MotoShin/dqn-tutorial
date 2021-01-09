@@ -71,7 +71,8 @@ class Simulate(object):
             last_idx = self.agent.save_memory(state)
 
             # Chose action
-            inp = torch.from_numpy(np.array([self.agent.get_screen_history()])).type(torch.FloatTensor).type(utility.dtype) / 255.0
+            recent_screen = self.agent.get_screen_history()
+            inp = torch.from_numpy(np.array([recent_screen])).type(utility.dtype) / 255.0
             action = self.agent.select_action(inp, episode_num)
             # Action
             _, reward, done, _ = self.env.step(action)
