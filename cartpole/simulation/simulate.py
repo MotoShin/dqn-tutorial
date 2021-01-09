@@ -37,6 +37,7 @@ class Simulate(object):
         )
 
     def start(self):
+        print('Start!')
         for i_simulation in range(utility.NUM_SIMULATION):
             self.agent_reset()
             self.dulation = []
@@ -95,8 +96,8 @@ class Simulate(object):
                 self.reward.append(sum_reward)
                 break
 
-    def output_progress(simulate_num, episode_num):
-        late = float((simulate_num * SIMULATION_NUM + episode_num) / (SIMULATION_NUM * EPISODE_NUM))
+    def output_progress(self, simulate_num, episode_num):
+        late = float((simulate_num * utility.NUM_SIMULATION + episode_num) / (utility.NUM_SIMULATION * utility.NUM_EPISODE))
         late_percent = late * 100
         if (late_percent % 10 == 0):
             print("progress: {: >3} %".format(late_percent))
