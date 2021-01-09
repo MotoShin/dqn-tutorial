@@ -13,6 +13,7 @@ TARGET_UPDATE = 10
 NET_PARAMETERS_BK_PATH = 'output/value_net_bk.pth'
 USE_CUDA = torch.cuda.is_available()
 dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # network parameters
 NW_LEARNING_RATE = 0.00025
 NW_ALPHA = 0.95

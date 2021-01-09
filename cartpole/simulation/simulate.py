@@ -5,7 +5,7 @@ import numpy as np
 
 import utility
 from agent.agentmodel import Agent
-from agent.learningmethod.dqn.dqn import DqnLearningMethod, Variable
+from agent.learningmethod.dqn.dqn import DqnLearningMethod
 from agent.learningmethod.dqn.dqnsoftupdate import DqnSoftUpdateLearningMethod
 from agent.policy.greedy import Greedy
 from agent.policy.egreedy import Egreedy
@@ -37,6 +37,7 @@ class Simulate(object):
         )
 
     def start(self):
+        print('Start!')
         for i_simulation in range(utility.NUM_SIMULATION):
             self.agent_reset()
             self.dulation = []
@@ -71,10 +72,9 @@ class Simulate(object):
             last_idx = self.agent.save_memory(state)
 
             # Chose action
-            inp = torch.from_numpy(np.array([self.agent.get_screen_history()])).type(torch.FloatTensor).type(utility.dtype) / 255.0
-            with torch.no_grad():
-                inp = Variable(inp)
-                action = self.agent.select_action(inp, episode_num)
+            recent_screen = self.agent.get_screen_history()
+            inp = torch.from_numpy(np.array([recent_screen])).type(utility.dtype) / 255.0
+            action = self.agent.select_action(inp, episode_num)
             # Action
             _, reward, done, _ = self.env.step(action)
 
@@ -97,9 +97,9 @@ class Simulate(object):
                 break
 
     def output_progress(self, simulate_num, episode_num):
-        simulate_progress_late = float((simulate_num + 1) / utility.NUM_SIMULATION)
-        episode_progress_late = float((episode_num + 1) / utility.NUM_EPISODE)
-        late = simulate_progress_late * episode_progress_late
+        sim = simulate_num + 1
+        epi = episode_num + 1
+        late = float((simulate_num * utility.NUM_EPISODE + epi) / (utility.NUM_SIMULATION * utility.NUM_EPISODE))
         late_percent = late * 100
         if (late_percent % 10 == 0):
             print("progress: {: >3} %".format(late_percent))

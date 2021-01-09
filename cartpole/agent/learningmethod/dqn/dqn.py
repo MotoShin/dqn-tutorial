@@ -14,10 +14,11 @@ from simulation.values.agnets import AgentsNames
 
 class DqnLearningMethod(Model):
     def __init__(self, n_actions):
-        self.value_net = Network(n_actions).type(utility.dtype)
+        self.value_net = Network(n_actions).type(utility.dtype).to(device=utility.device)
         self.target_net = Network(n_actions).type(utility.dtype)
         self.target_net.load_state_dict(self.value_net.state_dict())
         self.target_net.eval()
+        self.target_net.to(device=utility.device)
         self.optimizer = optim.RMSprop(self.value_net.parameters(), lr=utility.NW_LEARNING_RATE, alpha=utility.NW_ALPHA, eps=utility.NW_EPS)
         self.memory = ReplayBuffer(utility.NUM_REPLAY_BUFFER, utility.FRAME_NUM)
 
@@ -35,7 +36,7 @@ class DqnLearningMethod(Model):
 
         if utility.USE_CUDA:
             act_batch = act_batch.cuda()
-            rew_batch = act_batch.cuda()
+            rew_batch = rew_batch.cuda()
 
         # Q values
         current_Q_values = self.value_net(obs_batch).gather(1, act_batch.unsqueeze(1)).squeeze(1)
@@ -64,10 +65,20 @@ class DqnLearningMethod(Model):
         self.memory.store_effect(last_idx, action, reward, done)
 
     def output_target_net(self, state):
-        return self.target_net(state)
+        output = None
+        with torch.no_grad():
+            state = Variable(state)
+            state.to(utility.device)
+            output = self.target_net(state)
+        return output
 
     def output_value_net(self, state):
-        return self.value_net(state)
+        output = None
+        with torch.no_grad():
+            state = Variable(state)
+            state.to(utility.device)
+            output = self.value_net(state)
+        return output
 
     def output_net_paramertes(self):
         torch.save(self.value_net.state_dict(), utility.NET_PARAMETERS_BK_PATH)
