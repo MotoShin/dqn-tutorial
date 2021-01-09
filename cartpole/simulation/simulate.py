@@ -97,7 +97,9 @@ class Simulate(object):
                 break
 
     def output_progress(self, simulate_num, episode_num):
-        late = float((simulate_num * utility.NUM_SIMULATION + episode_num) / (utility.NUM_SIMULATION * utility.NUM_EPISODE))
+        sim = simulate_num + 1
+        epi = episode_num + 1
+        late = float((sim * utility.NUM_EPISODE + episode_num) / (utility.NUM_SIMULATION * utility.NUM_EPISODE))
         late_percent = late * 100
         if (late_percent % 10 == 0):
             print("progress: {: >3} %".format(late_percent))
