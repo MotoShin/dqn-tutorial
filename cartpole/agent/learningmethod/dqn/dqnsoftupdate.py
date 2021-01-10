@@ -35,7 +35,7 @@ class DqnSoftUpdateLearningMethod(Model):
 
         if utility.USE_CUDA:
             act_batch = act_batch.cuda()
-            rew_batch = act_batch.cuda()
+            rew_batch = rew_batch.cuda()
 
         # Q values
         current_Q_values = self.value_net(obs_batch).gather(1, act_batch.unsqueeze(1)).squeeze(1)
