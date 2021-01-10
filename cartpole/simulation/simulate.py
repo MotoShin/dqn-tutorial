@@ -26,7 +26,7 @@ class Simulate(object):
 
     def agent_reset(self):
         self.env.reset()
-        if self.agent_name == AgentsNames.DQN_SOFTUPFATE:
+        if self.agent_name == AgentsNames.DQNSOFTUPDATE:
             learning_method = DqnSoftUpdateLearningMethod(self.env.get_n_actions())
         else:
             learning_method = DqnLearningMethod(self.env.get_n_actions())

@@ -94,4 +94,4 @@ class DqnSoftUpdateLearningMethod(Model):
         return self.memory.encode_recent_observation()
 
     def get_method_name(self):
-        return AgentsNames.DQN_SOFTUPFATE.value
+        return AgentsNames.DQNSOFTUPDATE.value
