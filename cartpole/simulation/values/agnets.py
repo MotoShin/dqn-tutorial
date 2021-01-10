@@ -3,7 +3,7 @@ from enum import Enum
 
 class AgentsNames(Enum):
     DQN = "dqn"
-    DQN_SOFTUPFATE = "dqn_softupdate"
+    DQNSOFTUPDATE = "dqn_softupdate"
 
     @classmethod
     def value_of(cls, target_value):
