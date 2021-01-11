@@ -4,6 +4,7 @@ from enum import Enum
 class AgentsNames(Enum):
     DQN = "dqn"
     DQNSOFTUPDATE = "dqn_softupdate"
+    DDQN = "ddqn"
 
     @classmethod
     def value_of(cls, target_value):

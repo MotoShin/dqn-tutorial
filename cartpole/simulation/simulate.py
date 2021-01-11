@@ -7,6 +7,7 @@ import utility
 from agent.agentmodel import Agent
 from agent.learningmethod.dqn.dqn import DqnLearningMethod
 from agent.learningmethod.dqn.dqnsoftupdate import DqnSoftUpdateLearningMethod
+from agent.learningmethod.ddqn.ddqn import DdqnLearningMethod
 from agent.policy.greedy import Greedy
 from agent.policy.egreedy import Egreedy
 from environment.cartpole import CartPole
@@ -28,6 +29,8 @@ class Simulate(object):
         self.env.reset()
         if self.agent_name == AgentsNames.DQNSOFTUPDATE:
             learning_method = DqnSoftUpdateLearningMethod(self.env.get_n_actions())
+        elif self.agent_name == AgentsNames.DDQN:
+            learning_method = DdqnLearningMethod(self.env.get_n_actions())
         else:
             learning_method = DqnLearningMethod(self.env.get_n_actions())
         self.agent = Agent(
@@ -48,7 +51,7 @@ class Simulate(object):
             self.episode_rewards.append(self.reward)
             if (i_simulation + 1) % 10 == 0:
                 print(i_simulation + 1)
-                DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], "{}_dulation_{}.csv".format(self.agent.get_method_name, i_simulation+1))
+                DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], "{}_dulation_{}.csv".format(self.agent.get_method_name(), i_simulation+1))
                 DataShaping.makeCsv(self.episode_rewards, ['episode', 'reward'], "{}_reward_{}.csv".format(self.agent.get_method_name(), i_simulation+1))
         DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], "{}_dulation.csv".format(self.agent.get_method_name()))
         DataShaping.makeCsv(self.episode_rewards, ['episode', 'reward'], "{}_reward.csv".format(self.agent.get_method_name()))
