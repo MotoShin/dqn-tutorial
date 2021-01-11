@@ -7,6 +7,7 @@ import utility
 from agent.agentmodel import Agent
 from agent.learningmethod.dqn.dqn import DqnLearningMethod
 from agent.learningmethod.dqn.dqnsoftupdate import DqnSoftUpdateLearningMethod
+from agent.learningmethod.ddqn.ddqn import DdqnLearningMethod
 from agent.policy.greedy import Greedy
 from agent.policy.egreedy import Egreedy
 from environment.cartpole import CartPole
@@ -28,6 +29,8 @@ class Simulate(object):
         self.env.reset()
         if self.agent_name == AgentsNames.DQNSOFTUPDATE:
             learning_method = DqnSoftUpdateLearningMethod(self.env.get_n_actions())
+        elif self.agent_name == AgentsNames.DDQN:
+            learning_method = DdqnLearningMethod(self.env.get_n_actions())
         else:
             learning_method = DqnLearningMethod(self.env.get_n_actions())
         self.agent = Agent(
