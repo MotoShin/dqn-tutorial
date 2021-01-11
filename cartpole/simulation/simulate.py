@@ -51,7 +51,7 @@ class Simulate(object):
             self.episode_rewards.append(self.reward)
             if (i_simulation + 1) % 10 == 0:
                 print(i_simulation + 1)
-                DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], "{}_dulation_{}.csv".format(self.agent.get_method_name, i_simulation+1))
+                DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], "{}_dulation_{}.csv".format(self.agent.get_method_name(), i_simulation+1))
                 DataShaping.makeCsv(self.episode_rewards, ['episode', 'reward'], "{}_reward_{}.csv".format(self.agent.get_method_name(), i_simulation+1))
         DataShaping.makeCsv(self.episode_dulations, ['episode', 'dulation'], "{}_dulation.csv".format(self.agent.get_method_name()))
         DataShaping.makeCsv(self.episode_rewards, ['episode', 'reward'], "{}_reward.csv".format(self.agent.get_method_name()))
