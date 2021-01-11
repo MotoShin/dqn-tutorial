@@ -6,7 +6,8 @@ import torch.autograd as autograd
 import numpy as np
 
 import utility
-from agent.learningmethod.dqn.network import Network
+from agent.policy.greedy import GreedyEnum
+from agent.learningmethod.ddqn.network import Network
 from agent.learningmethod.replaybuffer import ReplayBuffer
 from agent.learningmethod.model import Model, Variable
 from simulation.values.agnets import AgentsNames
@@ -41,7 +42,10 @@ class DdqnLearningMethod(Model):
         # Q values
         current_Q_values = self.value_net(obs_batch).gather(1, act_batch.unsqueeze(1)).squeeze(1)
         # target Q values
-        next_max_q = target_policy.select(self.value_net(next_obs_batch))
+        next_value_net_values = self.value_net(next_obs_batch)
+        next_target_net_values = self.target_net(next_obs_batch)
+
+        next_max_q = next_target_net_values.gather(1, target_policy.select(self.value_net(next_obs_batch), GreedyEnum.INDEX)).squeeze(1)
         next_Q_values = not_done_mask * next_max_q
         target_Q_values = rew_batch + (utility.GAMMA * next_Q_values)
         # Compute Bellman error
