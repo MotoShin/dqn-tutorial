@@ -3,20 +3,18 @@ import pandas as pd
 
 
 class DataShaping(object):
-    @staticmethod
-    def dataAverage(lst):
-        arr = np.array(lst)
-        if (len(arr) == 1):
-            sum_arr = arr[0]
-        else:
-            sum_arr = np.sum(arr, axis=0)
-        return sum_arr / len(arr)
 
     @staticmethod
-    def makeCsv(lst, cols, file_name):
-        avg_arr = DataShaping.dataAverage(lst)
+    def makeCsv(lst, kind, file_name):
         csv_lst = []
-        for i in range(len(avg_arr)):
-            csv_lst.append([i+1, avg_arr[i]])
+        cols = ['episode']
+        for epi in range(len(lst[0])):
+            cols.append("{}epi_{}".format(epi+1, kind))
+
+        for i in range(len(lst)):
+            one_line = [i+1]
+            for k in range(len(lst[i])):
+                one_line.append(lst[i][k])
+            csv_lst.append(one_line)
         df = pd.DataFrame(csv_lst, columns=cols)
         df.to_csv('output/' + file_name, index=False)
