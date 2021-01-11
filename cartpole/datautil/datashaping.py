@@ -9,7 +9,7 @@ class DataShaping(object):
         csv_lst = []
         cols = ['episode']
         for epi in range(len(lst[0])):
-            cols.append("{}epi_{}".format(epi+1, kind))
+            cols.append("{}sim_{}".format(epi+1, kind))
 
         for i in range(len(lst)):
             one_line = [i+1]
