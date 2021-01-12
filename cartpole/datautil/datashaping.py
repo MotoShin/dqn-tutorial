@@ -8,13 +8,17 @@ class DataShaping(object):
     def makeCsv(lst, kind, file_name):
         csv_lst = []
         cols = ['episode']
-        for epi in range(len(lst[0])):
-            cols.append("{}sim_{}".format(epi+1, kind))
+        num_simulation = len(lst)
+        num_episode = len(lst[0])
 
-        for i in range(len(lst)):
-            one_line = [i+1]
-            for k in range(len(lst[i])):
-                one_line.append(lst[i][k])
+        for sim in range(num_simulation):
+            cols.append("{}sim_{}".format(sim+1, kind))
+
+        for epi in range(num_episode):
+            one_line = [epi+1]
+            for sim in range(num_simulation):
+                one_line.append(lst[sim][epi])
             csv_lst.append(one_line)
+
         df = pd.DataFrame(csv_lst, columns=cols)
         df.to_csv('output/' + file_name, index=False)
