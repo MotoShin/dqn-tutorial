@@ -9,7 +9,7 @@ import utility
 from agent.learningmethod.dqn.network import Network
 from agent.learningmethod.replaybuffer import ReplayBuffer
 from agent.learningmethod.model import Model, Variable
-from simulation.values.agnets import AgentsNames
+from simulation.values.agents import AgentsNames
 
 
 class DqnLearningMethod(Model):

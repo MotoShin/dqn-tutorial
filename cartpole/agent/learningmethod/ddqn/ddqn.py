@@ -10,7 +10,7 @@ from agent.policy.greedy import GreedyEnum
 from agent.learningmethod.ddqn.network import Network
 from agent.learningmethod.replaybuffer import ReplayBuffer
 from agent.learningmethod.model import Model, Variable
-from simulation.values.agnets import AgentsNames
+from simulation.values.agents import AgentsNames
 
 
 class DdqnLearningMethod(Model):

@@ -5,6 +5,7 @@ class AgentsNames(Enum):
     DQN = "dqn"
     DQNSOFTUPDATE = "dqn_softupdate"
     DDQN = "ddqn"
+    DDQNDUELINGNET = "ddqn_dueling_network"
 
     @classmethod
     def value_of(cls, target_value):
