@@ -22,4 +22,3 @@ class Network(nn.Module):
         v = self.fc5_v(x)
         output = v + (adv - torch.mean(v, dim=1, keepdim=True))
         return output
-        
