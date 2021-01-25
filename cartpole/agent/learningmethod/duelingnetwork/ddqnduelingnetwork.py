@@ -6,13 +6,13 @@ import torch.autograd as autograd
 import numpy as np
 
 import utility
-from agent.learningmethod.dqn.network import Network
+from agent.policy.greedy import GreedyEnum
+from agent.learningmethod.duelingnetwork.network import Network
 from agent.learningmethod.replaybuffer import ReplayBuffer
 from agent.learningmethod.model import Model, Variable
 from simulation.values.agents import AgentsNames
 
-
-class DqnSoftUpdateLearningMethod(Model):
+class DdqnDuelingNetworkLearningMethod(Model):
     def __init__(self, n_actions):
         self.value_net = Network(n_actions).type(utility.dtype).to(device=utility.device)
         self.target_net = Network(n_actions).type(utility.dtype)
@@ -41,7 +41,10 @@ class DqnSoftUpdateLearningMethod(Model):
         # Q values
         current_Q_values = self.value_net(obs_batch).gather(1, act_batch.unsqueeze(1)).squeeze(1)
         # target Q values
-        next_max_q = target_policy.select(self.target_net(next_obs_batch))
+        next_value_net_values = self.value_net(next_obs_batch)
+        next_target_net_values = self.target_net(next_obs_batch)
+
+        next_max_q = next_target_net_values.gather(1, target_policy.select(self.value_net(next_obs_batch), GreedyEnum.INDEX)).squeeze(1)
         next_Q_values = not_done_mask * next_max_q
         target_Q_values = rew_batch + (utility.GAMMA * next_Q_values)
         # Compute Bellman error
@@ -55,15 +58,8 @@ class DqnSoftUpdateLearningMethod(Model):
         current_Q_values.backward(d_error.data)
         self.optimizer.step()
 
-        # target network soft update
-        self._soft_update_target_network()
-
     def update_target_network(self):
-        pass
-
-    def _soft_update_target_network(self):
-        for target_param, value_param in zip(self.target_net.parameters(), self.value_net.parameters()):
-            target_param.data.copy_(utility.TAU * value_param.data + (1.0 - utility.TAU) * target_param.data)
+        self.target_net.load_state_dict(self.value_net.state_dict())
 
     def save_memory(self, state):
         return self.memory.store_frame(state)
@@ -94,4 +90,4 @@ class DqnSoftUpdateLearningMethod(Model):
         return self.memory.encode_recent_observation()
 
     def get_method_name(self):
-        return AgentsNames.DQNSOFTUPDATE.value
+        return AgentsNames.DDQNDUELINGNET.value
