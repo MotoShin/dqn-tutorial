@@ -27,7 +27,7 @@ NW_EPS = 0.01
 EPS_MODE = EgreedyOptions.ACTION
 EPS_START = 1.0
 EPS_END = 0.01
-EPS_TIMESTEPS = 70000
+EPS_TIMESTEPS = 20000
 # Soft Update Setting
 TAU = 1e-3
 
