@@ -1,6 +1,7 @@
 import torchvision.transforms as T
 import torch
 from PIL import Image
+from agent.policy.egreedy import EgreedyOptions
 
 #### Simulation parameters ####
 NUM_EPISODE = 1000
@@ -19,9 +20,14 @@ NW_LEARNING_RATE = 0.00025
 NW_ALPHA = 0.95
 NW_EPS = 0.01
 # epislon-greedy paramaters
+# EPS_MODE = EgreedyOptions.EPISODE
+# EPS_START = 1.0
+# EPS_END = 0.01
+# EPS_TIMESTEPS = 950
+EPS_MODE = EgreedyOptions.ACTION
 EPS_START = 1.0
 EPS_END = 0.01
-EPS_TIMESTEPS = 950
+EPS_TIMESTEPS = 30000
 # Soft Update Setting
 TAU = 1e-3
 
