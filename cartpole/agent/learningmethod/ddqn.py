@@ -70,7 +70,10 @@ class DdqnLearningMethod(Model):
             self._soft_update_target_network()
 
     def update_target_network(self):
-        self.target_net.load_state_dict(self.value_net.state_dict())
+        if self.soft_update_flg:
+            pass
+        else:
+            self.target_net.load_state_dict(self.value_net.state_dict())
 
     def _soft_update_target_network(self):
         for target_param, value_param in zip(self.target_net.parameters(), self.value_net.parameters()):
