@@ -31,7 +31,7 @@ class Simulate(object):
         elif self.agent_name == AgentsNames.DDQN:
             learning_method = DdqnLearningMethod(self.env.get_n_actions())
         elif self.agent_name == AgentsNames.DDQNDUELINGNET:
-            learning_method = DdqnDuelingNetworkLearningMethod(self.env.get_n_actions(), dueling_network_flg=True)
+            learning_method = DdqnLearningMethod(self.env.get_n_actions(), dueling_network_flg=True)
         else:
             learning_method = DqnLearningMethod(self.env.get_n_actions())
         self.agent = Agent(
