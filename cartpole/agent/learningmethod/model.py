@@ -6,7 +6,7 @@ import utility
 
 class Model(object):
     @abstractmethod
-    def __init__(self, n_actions):
+    def __init__(self, n_actions, soft_update_flg, dueling_network_flg):
         pass
 
     @abstractmethod

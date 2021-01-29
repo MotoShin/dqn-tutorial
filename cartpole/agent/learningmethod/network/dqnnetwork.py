@@ -4,9 +4,9 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 
-class Network(nn.Module):
+class DqnNetwork(nn.Module):
     def __init__(self, outputs):
-        super(Network, self).__init__()
+        super(DqnNetwork, self).__init__()
         self.conv1 = nn.Conv2d(4, 32, kernel_size=8, stride=4)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1)
@@ -21,3 +21,4 @@ class Network(nn.Module):
         x = F.relu(self.conv3(x))
         x = F.relu(self.fc4(x.view(x.size(0), -1)))
         return self.fc5(x)
+
