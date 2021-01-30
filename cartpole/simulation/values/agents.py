@@ -15,25 +15,25 @@ class AgentsNames(Enum):
     def get_name(category, soft_update_flg, dueling_network_flg):
         agent_name = None
 
-        if category == DQN.value:
+        if category == AgentsNames.DQN.value:
             if soft_update_flg:
-                agent_name = DQN_SOFTUPDATE.value
+                agent_name = AgentsNames.DQN_SOFTUPDATE.value
             elif dueling_network_flg:
-                agent_name = DQN_DUELINGNET.value
+                agent_name = AgentsNames.DQN_DUELINGNET.value
             elif soft_update_flg and dueling_network_flg:
-                agent_name = DQN_SOFTUPDATE_DUELINGNET.value
+                agent_name = AgentsNames.DQN_SOFTUPDATE_DUELINGNET.value
             else:
-                agent_name = DQN.value
+                agent_name = AgentsNames.DQN.value
 
-        if category == DDQN.value:
+        if category == AgentsNames.DDQN.value:
             if soft_update_flg:
-                agent_name = DDQN_SOFTUPDATE.value
+                agent_name = AgentsNames.DDQN_SOFTUPDATE.value
             elif dueling_network_flg:
-                agent_name = DDQN_DUELINGNET.value
+                agent_name = AgentsNames.DDQN_DUELINGNET.value
             elif soft_update_flg and dueling_network_flg:
-                agent_name = DDQN_SOFTUPDATE_DUELINGNET.value
+                agent_name = AgentsNames.DDQN_SOFTUPDATE_DUELINGNET.value
             else:
-                agent_name = DDQN.value
+                agent_name = AgentsNames.DDQN.value
 
         return agent_name
 
