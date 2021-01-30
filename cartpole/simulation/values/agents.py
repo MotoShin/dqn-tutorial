@@ -20,7 +20,7 @@ class AgentsNames(Enum):
                 agent_name = DQN_SOFTUPDATE.value
             elif dueling_network_flg:
                 agent_name = DQN_DUELINGNET.value
-            elif soft_update_flg and dueling_network_flg
+            elif soft_update_flg and dueling_network_flg:
                 agent_name = DQN_SOFTUPDATE_DUELINGNET.value
             else:
                 agent_name = DQN.value
@@ -30,7 +30,7 @@ class AgentsNames(Enum):
                 agent_name = DDQN_SOFTUPDATE.value
             elif dueling_network_flg:
                 agent_name = DDQN_DUELINGNET.value
-            elif soft_update_flg and dueling_network_flg
+            elif soft_update_flg and dueling_network_flg:
                 agent_name = DDQN_SOFTUPDATE_DUELINGNET.value
             else:
                 agent_name = DDQN.value
