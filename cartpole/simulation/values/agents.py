@@ -3,9 +3,13 @@ from enum import Enum
 
 class AgentsNames(Enum):
     DQN = "dqn"
-    DQNSOFTUPDATE = "dqn_softupdate"
+    DQN_SOFTUPDATE = "dqn_softupdate"
+    DQN_DUELINGNET = "dqn_dueling_network"
+    DQN_SOFTUPDATE_DUELINGNET = "dqn_softupdate_dueling_network"
     DDQN = "ddqn"
-    DDQNDUELINGNET = "ddqn_dueling_network"
+    DDQN_SOFTUPDATE = "ddqn_softupdate"
+    DDQN_DUELINGNET = "ddqn_dueling_network"
+    DDQN_SOFTUPDATE_DUELINGNET = "ddqn_softupdate_dueling_network"
 
     @classmethod
     def value_of(cls, target_value):
