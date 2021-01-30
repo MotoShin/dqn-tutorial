@@ -104,4 +104,4 @@ class DqnLearningMethod(Model):
         return self.memory.encode_recent_observation()
 
     def get_method_name(self):
-        return AgentsNames.DQN.value
+        return AgentsNames.get_name("dqn", self.soft_update_flg, self.dueling_network_flg)
