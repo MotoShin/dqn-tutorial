@@ -27,7 +27,7 @@ class Simulate(object):
 
     def agent_reset(self):
         self.env.reset()
-        learning_method = LearningMethodGenerate(self.agent_name, self.env.get_n_actions())
+        learning_method = LearningMethodGenerate.generate(self.agent_name, self.env.get_n_actions())
         self.agent = Agent(
             learning_method=learning_method,
             behavior_policy=Egreedy(self.env.get_n_actions()),
