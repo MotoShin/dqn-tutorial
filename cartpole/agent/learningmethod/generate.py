@@ -7,19 +7,19 @@ class LearningMethodGenerate(object):
     @staticmethod
     def generate(agent_name, n_actions):
         learning_method = None
-        if agent_name == AgentsNames.DQN_SOFTUPDATE.value:
+        if agent_name.value == AgentsNames.DQN_SOFTUPDATE.value:
             learning_method = DqnLearningMethod(n_actions, soft_update_flg=True)
-        elif agent_name == AgentsNames.DQN_DUELINGNET.value:
+        elif agent_name.value == AgentsNames.DQN_DUELINGNET.value:
             learning_method = DqnLearningMethod(n_actions, dueling_network_flg=True)
-        elif agent_name == AgentsNames.DQN_SOFTUPDATE_DUELINGNET.value:
+        elif agent_name.value == AgentsNames.DQN_SOFTUPDATE_DUELINGNET.value:
             learning_method = DqnLearningMethod(n_actions, soft_update_flg=True, dueling_network_flg=True)
-        elif agent_name == AgentsNames.DDQN.value:
+        elif agent_name.value == AgentsNames.DDQN.value:
             learning_method = DdqnLearningMethod(n_actions)
-        elif agent_name == AgentsNames.DDQN_SOFTUPDATE.value:
+        elif agent_name.value == AgentsNames.DDQN_SOFTUPDATE.value:
             learning_method = DdqnLearningMethod(n_actions, soft_update_flg=True)
-        elif agent_name == AgentsNames.DDQN_DUELINGNET.value:
+        elif agent_name.value == AgentsNames.DDQN_DUELINGNET.value:
             learning_method = DdqnLearningMethod(n_actions, dueling_network_flg=True)
-        elif agent_name == AgentsNames.DDQN_SOFTUPDATE_DUELINGNET.value:
+        elif agent_name.value == AgentsNames.DDQN_SOFTUPDATE_DUELINGNET.value:
             learning_method = DdqnLearningMethod(n_actions, soft_update_flg=True, dueling_network_flg=True)
         else:
             learning_method = DqnLearningMethod(n_actions)
