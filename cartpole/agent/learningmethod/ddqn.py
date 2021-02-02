@@ -7,15 +7,23 @@ import numpy as np
 
 import utility
 from agent.policy.greedy import GreedyEnum
-from agent.learningmethod.duelingnetwork.network import Network
+from agent.learningmethod.network.dqnnetwork import DqnNetwork
+from agent.learningmethod.network.duelingnetwork import DqnDuelingNetwork
 from agent.learningmethod.replaybuffer import ReplayBuffer
 from agent.learningmethod.model import Model, Variable
 from simulation.values.agents import AgentsNames
 
-class DdqnDuelingNetworkLearningMethod(Model):
-    def __init__(self, n_actions):
-        self.value_net = Network(n_actions).type(utility.dtype).to(device=utility.device)
-        self.target_net = Network(n_actions).type(utility.dtype)
+
+class DdqnLearningMethod(Model):
+    def __init__(self, n_actions, soft_update_flg=False, dueling_network_flg=False):
+        self.soft_update_flg = soft_update_flg
+        self.dueling_network_flg = dueling_network_flg
+        if dueling_network_flg:
+            self.value_net = DqnDuelingNetwork(n_actions).type(utility.dtype).to(device=utility.device)
+            self.target_net = DqnDuelingNetwork(n_actions).type(utility.dtype)
+        else:
+            self.value_net = DqnNetwork(n_actions).type(utility.dtype).to(device=utility.device)
+            self.target_net = DqnNetwork(n_actions).type(utility.dtype)
         self.target_net.load_state_dict(self.value_net.state_dict())
         self.target_net.eval()
         self.target_net.to(device=utility.device)
@@ -58,8 +66,19 @@ class DdqnDuelingNetworkLearningMethod(Model):
         current_Q_values.backward(d_error.data)
         self.optimizer.step()
 
+        # target network soft update
+        if self.soft_update_flg:
+            self._soft_update_target_network()
+
     def update_target_network(self):
-        self.target_net.load_state_dict(self.value_net.state_dict())
+        if self.soft_update_flg:
+            pass
+        else:
+            self.target_net.load_state_dict(self.value_net.state_dict())
+
+    def _soft_update_target_network(self):
+        for target_param, value_param in zip(self.target_net.parameters(), self.value_net.parameters()):
+            target_param.data.copy_(utility.TAU * value_param.data + (1.0 - utility.TAU) * target_param.data)
 
     def save_memory(self, state):
         return self.memory.store_frame(state)
@@ -90,4 +109,4 @@ class DdqnDuelingNetworkLearningMethod(Model):
         return self.memory.encode_recent_observation()
 
     def get_method_name(self):
-        return AgentsNames.DDQNDUELINGNET.value
+        return AgentsNames.get_name("ddqn", self.soft_update_flg, self.dueling_network_flg)

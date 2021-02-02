@@ -6,16 +6,23 @@ import torch.autograd as autograd
 import numpy as np
 
 import utility
-from agent.learningmethod.dqn.network import Network
+from agent.learningmethod.network.dqnnetwork import DqnNetwork
+from agent.learningmethod.network.duelingnetwork import DqnDuelingNetwork
 from agent.learningmethod.replaybuffer import ReplayBuffer
 from agent.learningmethod.model import Model, Variable
 from simulation.values.agents import AgentsNames
 
 
-class DqnSoftUpdateLearningMethod(Model):
-    def __init__(self, n_actions):
-        self.value_net = Network(n_actions).type(utility.dtype).to(device=utility.device)
-        self.target_net = Network(n_actions).type(utility.dtype)
+class DqnLearningMethod(Model):
+    def __init__(self, n_actions, soft_update_flg=False, dueling_network_flg=False):
+        self.soft_update_flg = soft_update_flg
+        self.dueling_network_flg = dueling_network_flg
+        if dueling_network_flg:
+            self.value_net = DqnDuelingNetwork(n_actions).type(utility.dtype).to(device=utility.device)
+            self.target_net = DqnDuelingNetwork(n_actions).type(utility.dtype)   
+        else:
+            self.value_net = DqnNetwork(n_actions).type(utility.dtype).to(device=utility.device)
+            self.target_net = DqnNetwork(n_actions).type(utility.dtype)   
         self.target_net.load_state_dict(self.value_net.state_dict())
         self.target_net.eval()
         self.target_net.to(device=utility.device)
@@ -56,10 +63,14 @@ class DqnSoftUpdateLearningMethod(Model):
         self.optimizer.step()
 
         # target network soft update
-        self._soft_update_target_network()
+        if self.soft_update_flg:
+            self._soft_update_target_network()
 
     def update_target_network(self):
-        pass
+        if self.soft_update_flg:
+            pass
+        else:
+            self.target_net.load_state_dict(self.value_net.state_dict())
 
     def _soft_update_target_network(self):
         for target_param, value_param in zip(self.target_net.parameters(), self.value_net.parameters()):
@@ -94,4 +105,4 @@ class DqnSoftUpdateLearningMethod(Model):
         return self.memory.encode_recent_observation()
 
     def get_method_name(self):
-        return AgentsNames.DQNSOFTUPDATE.value
+        return AgentsNames.get_name("dqn", self.soft_update_flg, self.dueling_network_flg)

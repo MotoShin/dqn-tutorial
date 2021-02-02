@@ -5,12 +5,11 @@ import numpy as np
 
 import utility
 from agent.agentmodel import Agent
-from agent.learningmethod.dqn.dqn import DqnLearningMethod
-from agent.learningmethod.dqn.dqnsoftupdate import DqnSoftUpdateLearningMethod
-from agent.learningmethod.ddqn.ddqn import DdqnLearningMethod
-from agent.learningmethod.duelingnetwork.ddqnduelingnetwork import DdqnDuelingNetworkLearningMethod
+from agent.learningmethod.dqn import DqnLearningMethod
+from agent.learningmethod.ddqn import DdqnLearningMethod
 from agent.policy.greedy import Greedy
 from agent.policy.egreedy import Egreedy
+from agent.learningmethod.generate import LearningMethodGenerate
 from environment.cartpole import CartPole
 from datautil.datashaping import DataShaping
 from simulation.values.agents import AgentsNames
@@ -28,14 +27,7 @@ class Simulate(object):
 
     def agent_reset(self):
         self.env.reset()
-        if self.agent_name == AgentsNames.DQNSOFTUPDATE:
-            learning_method = DqnSoftUpdateLearningMethod(self.env.get_n_actions())
-        elif self.agent_name == AgentsNames.DDQN:
-            learning_method = DdqnLearningMethod(self.env.get_n_actions())
-        elif self.agent_name == AgentsNames.DDQNDUELINGNET:
-            learning_method = DdqnDuelingNetworkLearningMethod(self.env.get_n_actions())
-        else:
-            learning_method = DqnLearningMethod(self.env.get_n_actions())
+        learning_method = LearningMethodGenerate.generate(self.agent_name, self.env.get_n_actions())
         self.agent = Agent(
             learning_method=learning_method,
             behavior_policy=Egreedy(self.env.get_n_actions()),
