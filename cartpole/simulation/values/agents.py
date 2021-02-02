@@ -16,22 +16,22 @@ class AgentsNames(Enum):
         agent_name = None
 
         if category == AgentsNames.DQN.value:
-            if soft_update_flg:
+            if soft_update_flg and dueling_network_flg:
+                agent_name = AgentsNames.DQN_SOFTUPDATE_DUELINGNET.value
+            elif soft_update_flg:
                 agent_name = AgentsNames.DQN_SOFTUPDATE.value
             elif dueling_network_flg:
                 agent_name = AgentsNames.DQN_DUELINGNET.value
-            elif soft_update_flg and dueling_network_flg:
-                agent_name = AgentsNames.DQN_SOFTUPDATE_DUELINGNET.value
             else:
                 agent_name = AgentsNames.DQN.value
 
         if category == AgentsNames.DDQN.value:
-            if soft_update_flg:
+            if soft_update_flg and dueling_network_flg:
+                agent_name = AgentsNames.DDQN_SOFTUPDATE_DUELINGNET.value
+            elif soft_update_flg:
                 agent_name = AgentsNames.DDQN_SOFTUPDATE.value
             elif dueling_network_flg:
                 agent_name = AgentsNames.DDQN_DUELINGNET.value
-            elif soft_update_flg and dueling_network_flg:
-                agent_name = AgentsNames.DDQN_SOFTUPDATE_DUELINGNET.value
             else:
                 agent_name = AgentsNames.DDQN.value
 
