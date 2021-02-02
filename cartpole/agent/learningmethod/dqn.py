@@ -16,6 +16,7 @@ from simulation.values.agents import AgentsNames
 class DqnLearningMethod(Model):
     def __init__(self, n_actions, soft_update_flg=False, dueling_network_flg=False):
         self.soft_update_flg = soft_update_flg
+        self.dueling_network_flg = dueling_network_flg
         if dueling_network_flg:
             self.value_net = DqnDuelingNetwork(n_actions).type(utility.dtype).to(device=utility.device)
             self.target_net = DqnDuelingNetwork(n_actions).type(utility.dtype)   
