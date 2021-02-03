@@ -137,3 +137,6 @@ dmypy.json
 # project
 *.csv
 *.pth
+
+# secret
+cartpole/secret/__init__.py

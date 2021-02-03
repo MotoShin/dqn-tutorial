@@ -1,7 +1,14 @@
 import torchvision.transforms as T
 import torch
+import secret
 from PIL import Image
 from agent.policy.egreedy import EgreedyOptions
+
+
+#### Line notify ####
+LINE_NOTIFY_FLG = False
+LINE_NOTIFY_MSG = "実行完了\n経過時間: {}"
+LINE_NOTIFY_TOKEN = secret.LINE_NOTIFY_TOKEN if LINE_NOTIFY_FLG else None
 
 #### Simulation parameters ####
 NUM_EPISODE = 1000
