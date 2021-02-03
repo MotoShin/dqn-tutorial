@@ -11,7 +11,7 @@ LINE_NOTIFY_MSG = "実行完了\n経過時間: {}"
 LINE_NOTIFY_TOKEN = secret.LINE_NOTIFY_TOKEN if LINE_NOTIFY_FLG else None
 
 #### Simulation parameters ####
-NUM_EPISODE = 10
+NUM_EPISODE = 1000
 NUM_SIMULATION = 1
 
 #### DQN parameters ####
