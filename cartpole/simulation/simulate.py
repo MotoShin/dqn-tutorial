@@ -1,6 +1,7 @@
 import torch
 from itertools import count
 import random
+import time
 import numpy as np
 
 import utility
@@ -13,6 +14,7 @@ from agent.learningmethod.generate import LearningMethodGenerate
 from environment.cartpole import CartPole
 from datautil.datashaping import DataShaping
 from simulation.values.agents import AgentsNames
+from utility.line_notify import LineNotify
 
 
 class Simulate(object):
@@ -35,6 +37,7 @@ class Simulate(object):
         )
 
     def start(self):
+        start = time.time()
         print('Start!')
         for i_simulation in range(utility.NUM_SIMULATION):
             self.agent_reset()
@@ -50,7 +53,15 @@ class Simulate(object):
                 DataShaping.makeCsv(self.episode_rewards, 'reward', "{}_reward_{}.csv".format(self.agent.get_method_name(), i_simulation+1))
         DataShaping.makeCsv(self.episode_dulations, 'dulation', "{}_dulation.csv".format(self.agent.get_method_name()))
         DataShaping.makeCsv(self.episode_rewards, 'reward', "{}_reward.csv".format(self.agent.get_method_name()))
+        end = time.time()
+        
+        # Line notify
         self.env.close()
+        LineNotify.send_line_notify(
+            utility.LINE_NOTIFY_FLG,
+            utility.LINE_NOTIFY_TOKEN,
+            utility.LINE_NOTIFY_MSG.format(self._shape_time(end - start)))
+
         print('Complete')
 
     def one_simulate_start(self, simulation_num):
@@ -101,3 +112,14 @@ class Simulate(object):
         late_percent = late * 100
         if (late_percent % 10 == 0):
             print("progress: {: >3} %".format(late_percent))
+
+    def _shape_time(self, elapsed_time):
+        elapsed_time = int(elapsed_time)
+
+        elapsed_hour = elapsed_time // 3600
+        elapsed_minute = (elapsed_time % 3600) // 60
+        elapsed_second = (elapsed_time % 3600 % 60)
+
+        return str(elapsed_hour).zfill(2) + ":" \
+                + str(elapsed_minute).zfill(2) + ":" \
+                + str(elapsed_second).zfill(2)
