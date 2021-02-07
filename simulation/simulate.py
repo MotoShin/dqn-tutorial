@@ -19,7 +19,7 @@ from utility.line_notify import LineNotify
 
 class Simulate(object):
     def __init__(self, agent_name):
-        self.env = CartPole()
+        self.env = utility.TASK
         self.agent = None
         self.dulation = []
         self.episode_dulations = []
