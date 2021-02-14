@@ -15,7 +15,8 @@ class TestAgentsNames(unittest.TestCase):
             ("ddqn", False, False, AgentsNames.DDQN.value),
             ("ddqn", True, False, AgentsNames.DDQN_SOFTUPDATE.value),
             ("ddqn", False, True, AgentsNames.DDQN_DUELINGNET.value),
-            ("ddqn", True, True, AgentsNames.DDQN_SOFTUPDATE_DUELINGNET.value)
+            ("ddqn", True, True, AgentsNames.DDQN_SOFTUPDATE_DUELINGNET.value),
+            ("ddpg", False, False, AgentsNames.DDPG.value)
         )
         for category, soft_update_flg, dueling_network_flg, expected_value in expected:
             with self.subTest(

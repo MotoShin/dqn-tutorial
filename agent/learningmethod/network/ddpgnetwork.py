@@ -26,7 +26,7 @@ class ActorNetwork(nn.Module):
         return torch.tanh(x)
 
     def init_optimizer(self, lr):
-        self.optimizer = optim.Adam(self.parameters, lr=lr)
+        self.optimizer = optim.Adam(self.parameters(), lr=lr)
 
 class CriticNetwork(nn.Module):
     def __init__(self, output):
@@ -58,7 +58,7 @@ class CriticNetwork(nn.Module):
         return self.fc3(state_action_value)
 
     def init_optimizer(self, lr):
-        self.optimizer = optim.Adam(self.parameters, lr=lr)
+        self.optimizer = optim.Adam(self.parameters(), lr=lr)
 
 class DdpgUtility(object):
     @staticmethod

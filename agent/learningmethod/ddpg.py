@@ -34,7 +34,7 @@ class DdpgLearningMethod(Model):
 
         self.memory = ReplayBuffer(utility.DDPG_NUM_REPLAY_BUFFER, utility.FRAME_NUM)
 
-    def optimize_model(self, target_policy):
+    def optimize_model(self, target_policy=None):
         BATCH_SIZE = utility.DDPG_BATCH_SIZE
         if not self.memory.can_sample(BATCH_SIZE):
             return
@@ -75,3 +75,49 @@ class DdpgLearningMethod(Model):
         actor_loss = torch.mean(-actor_q)
         actor_loss.backward()
         self.actor.optimizer.step()
+
+        # soft update is default
+        _soft_update_target_network()
+
+    def update_target_network(self):
+        pass
+
+    def _soft_update_target_network(self):
+        for target_param, value_param in zip(self.target_actor.parameters(), self.actor.parameters()):
+            target_param.data.copy_(utility.TAU * value_param.data + (1.0 - utility.TAU) * target_param.data)
+
+        for target_param, value_param in zip(self.target_critic.parameters(), self.critic.parameters()):
+            target_param.data.copy_(utility.TAU * value_param.data + (1.0 - utility.TAU) * target_param.data)
+
+    def save_memory(self, state):
+        return self.memory.store_frame(state)
+
+    def save_effect(self, last_idx, action, reward, done):
+        self.memory.store_effect(last_idx, action, reward, done)
+
+    def output_target_net(self, state):
+        output = None
+        with torch.no_grad():
+            state = Variable(state)
+            state.to(utility.device)
+            output = self.target_actor(state)
+        return output
+
+    def output_value_net(self, state):
+        output = None
+        with torch.no_grad():
+            state = Variable(state)
+            state.to(utility.device)
+            output = self.actor(state)
+        # TODO: noiseを入れる
+        return output
+
+    def output_net_paramertes(self):
+        torch.save(self.actor.state_dict(), utility.NET_PARAMETERS_BK_PATH_ACTOR)
+        torch.save(self.critic.state_dict(), utility.NET_PARAMETERS_BK_PATH_CRITIC)
+
+    def get_screen_history(self):
+        return self.memory.encode_recent_observation()
+
+    def get_method_name(self):
+        return AgentsNames.get_name("ddpg", False, False)

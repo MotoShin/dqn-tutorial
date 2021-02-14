@@ -48,6 +48,8 @@ CRITIC_LEARNING_RATE = 0.001
 DDPG_NUM_REPLAY_BUFFER = 1000000
 DDPG_BATCH_SIZE = 16
 DDPG_GAMMA = 0.99
+NET_PARAMETERS_BK_PATH_ACTOR = 'output/value_net_bk_actor.pth'
+NET_PARAMETERS_BK_PATH_CRITIC = 'output/value_net_bk_critic.pth'
 
 #### Replay Buffer parameters ####
 NUM_REPLAY_BUFFER = 10000

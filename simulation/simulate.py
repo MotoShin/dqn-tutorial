@@ -5,7 +5,7 @@ import time
 import numpy as np
 
 import utility
-from agent.agentmodel import Agent
+from agent.agentmodel import ProbabilisticAgent, DeterministicAgent
 from agent.learningmethod.dqn import DqnLearningMethod
 from agent.learningmethod.ddqn import DdqnLearningMethod
 from agent.policy.greedy import Greedy
@@ -30,7 +30,7 @@ class Simulate(object):
     def agent_reset(self):
         self.env.reset()
         learning_method = LearningMethodGenerate.generate(self.agent_name, self.env.get_n_actions())
-        self.agent = Agent(
+        self.agent = ProbabilisticAgent(
             learning_method=learning_method,
             behavior_policy=Egreedy(self.env.get_n_actions()),
             target_policy=Greedy()

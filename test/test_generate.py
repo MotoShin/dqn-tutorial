@@ -16,7 +16,8 @@ class TestGenerate(unittest.TestCase):
             (AgentsNames.DDQN, 2, "ddqn"),
             (AgentsNames.DDQN_SOFTUPDATE, 2, "ddqn_softupdate"),
             (AgentsNames.DDQN_DUELINGNET, 2, "ddqn_dueling_network"),
-            (AgentsNames.DDQN_SOFTUPDATE_DUELINGNET, 2, "ddqn_softupdate_dueling_network")
+            (AgentsNames.DDQN_SOFTUPDATE_DUELINGNET, 2, "ddqn_softupdate_dueling_network"),
+            (AgentsNames.DDPG, 2, "ddpg")
         )
         for agent_name, n_action, expected_value in expected:
             with self.subTest(agent_name=agent_name, n_action=n_action):
