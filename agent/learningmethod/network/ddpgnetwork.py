@@ -14,6 +14,8 @@ class ActorNetwork(nn.Module):
         self.fc2 = DdpgUtility.init_linear_layer(200, 200)
         self.mu = DdpgUtility.init_linear_layer(200, output, 0.0003)
 
+        self.optimizer = None
+
     def forward(self, x):
         x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
@@ -22,6 +24,9 @@ class ActorNetwork(nn.Module):
         x = F.relu(self.fc2(x))
         x = self.mu(x)
         return torch.tanh(x)
+
+    def init_optimizer(self, lr):
+        self.optimizer = optim.Adam(self.parameters, lr=lr)
 
 class CriticNetwork(nn.Module):
     def __init__(self, output):
@@ -38,6 +43,8 @@ class CriticNetwork(nn.Module):
         )
         self.fc3 = DdpgUtility.init_linear_layer(200, 1, 0.0003)
 
+        self.optimizer = None
+
     def forward(self, state, action):
         state_value = F.relu(self.conv1(state))
         state_value = F.relu(self.conv2(state_value))
@@ -49,6 +56,9 @@ class CriticNetwork(nn.Module):
         state_action_value = F.relu(torch.add(state_value, action_value))
 
         return self.fc3(state_action_value)
+
+    def init_optimizer(self, lr):
+        self.optimizer = optim.Adam(self.parameters, lr=lr)
 
 class DdpgUtility(object):
     @staticmethod
