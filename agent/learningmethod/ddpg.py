@@ -10,6 +10,7 @@ from agent.learningmethod.network.ddpgnetwork import ActorNetwork, CriticNetwork
 from agent.learningmethod.replaybuffer import ReplayBuffer
 from agent.learningmethod.model import Model, Variable
 from simulation.values.agents import AgentsNames
+from agent.learningmethod.noise.noiseinjectory import OrnsteinUhlenbeckActionNoise
 
 
 class DdpgLearningMethod(Model):
@@ -33,6 +34,7 @@ class DdpgLearningMethod(Model):
         self.target_critic.init_optimizer(utility.CRITIC_LEARNING_RATE)
 
         self.memory = ReplayBuffer(utility.DDPG_NUM_REPLAY_BUFFER, utility.FRAME_NUM)
+        self.noise = OrnsteinUhlenbeckActionNoise(mu=n_actions)
 
     def optimize_model(self, target_policy=None):
         BATCH_SIZE = utility.DDPG_BATCH_SIZE
@@ -42,7 +44,7 @@ class DdpgLearningMethod(Model):
         obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = self.memory.sample(BATCH_SIZE)
 
         obs_batch = Variable(torch.from_numpy(obs_batch).type(utility.dtype) / 255.0)
-        act_batch = Variable(torch.from_numpy(act_batch).long())
+        act_batch = Variable(torch.from_numpy(act_batch).float())
         rew_batch = Variable(torch.from_numpy(rew_batch))
         next_obs_batch = Variable(torch.from_numpy(next_obs_batch).type(utility.dtype) / 255.0)
         not_done_mask = Variable(torch.from_numpy(1 - done_mask)).type(utility.dtype)

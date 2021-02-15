@@ -5,12 +5,12 @@ import time
 import numpy as np
 
 import utility
-from agent.agentmodel import ProbabilisticAgent, DeterministicAgent
 from agent.learningmethod.dqn import DqnLearningMethod
 from agent.learningmethod.ddqn import DdqnLearningMethod
 from agent.policy.greedy import Greedy
 from agent.policy.egreedy import Egreedy
 from agent.learningmethod.generate import LearningMethodGenerate
+from agent.generate import AgentGenerate
 from environment.cartpole import CartPole
 from datautil.datashaping import DataShaping
 from simulation.values.agents import AgentsNames
@@ -30,11 +30,7 @@ class Simulate(object):
     def agent_reset(self):
         self.env.reset()
         learning_method = LearningMethodGenerate.generate(self.agent_name, self.env.get_n_actions())
-        self.agent = ProbabilisticAgent(
-            learning_method=learning_method,
-            behavior_policy=Egreedy(self.env.get_n_actions()),
-            target_policy=Greedy()
-        )
+        self.agent = AgentGenerate.generate(learning_method)
 
     def start(self):
         start = time.time()

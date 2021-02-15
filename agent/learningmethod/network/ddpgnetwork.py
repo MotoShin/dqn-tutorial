@@ -20,7 +20,7 @@ class ActorNetwork(nn.Module):
         x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
         x = F.relu(self.conv3(x))
-        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc1(x.view(x.size(0), -1)))
         x = F.relu(self.fc2(x))
         x = self.mu(x)
         return torch.tanh(x)
@@ -49,10 +49,10 @@ class CriticNetwork(nn.Module):
         state_value = F.relu(self.conv1(state))
         state_value = F.relu(self.conv2(state_value))
         state_value = F.relu(self.conv3(state_value))
-        state_value = F.relu(self.fc1(state_value))
+        state_value = F.relu(self.fc1(state_value.view(state_value.size(0), -1)))
         state_value = F.relu(self.fc2(state_value))
 
-        action_value = F.relu(self.action_value(action))
+        action_value = F.relu(self.action_value(torch.unsqueeze(action, 1)))
         state_action_value = F.relu(torch.add(state_value, action_value))
 
         return self.fc3(state_action_value)

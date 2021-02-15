@@ -25,6 +25,7 @@ class LearningMethodGenerate(object):
         elif agent_name.value == AgentsNames.DDPG.value:
             learning_method = DdpgLearningMethod(n_actions)
         else:
-            learning_method = DqnLearningMethod(n_actions)
+            # learning_method = DqnLearningMethod(n_actions)
+            learning_method = DdpgLearningMethod(n_actions)
 
         return learning_method

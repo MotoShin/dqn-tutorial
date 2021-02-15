@@ -1,3 +1,5 @@
+import torch
+
 from agent.learningmethod.model import Model
 from agent.policy.policymodel import PolicyModel
 
@@ -39,7 +41,9 @@ class DeterministicAgent(object):
         self.learning_method = learning_method
 
     def select_action(self, state, epi):
-        return self.learning_method.output_value_net(state)
+        mu = self.learning_method.output_value_net(state)
+        mu_w_noise = mu + torch.tensor(self.learning_method.noise(), dtype=torch.float)
+        return mu_w_noise.detach()
 
     def update(self):
         self.learning_method.optimize_model()
