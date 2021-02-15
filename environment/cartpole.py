@@ -69,6 +69,10 @@ class CartPole(object):
     
     def get_n_actions(self):
         return self.env.action_space.n
+
+    def get_number_of_input_action(self):
+        # 入力するactionの配列の数
+        return 1
     
     def reset(self):
         self.step_num = 0

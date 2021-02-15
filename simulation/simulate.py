@@ -30,7 +30,7 @@ class Simulate(object):
     def agent_reset(self):
         self.env.reset()
         learning_method = LearningMethodGenerate.generate(self.agent_name, self.env.get_n_actions())
-        self.agent = AgentGenerate.generate(learning_method)
+        self.agent = AgentGenerate.generate(learning_method, self.env)
 
     def start(self):
         start = time.time()

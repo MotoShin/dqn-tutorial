@@ -1,7 +1,9 @@
 import torch
+import numpy as np
 
 from agent.learningmethod.model import Model
 from agent.policy.policymodel import PolicyModel
+from agent.learningmethod.noise.noiseinjectory import OrnsteinUhlenbeckActionNoise
 
 
 class ProbabilisticAgent(object):
@@ -37,13 +39,15 @@ class ProbabilisticAgent(object):
         return self.learning_method.get_method_name()
 
 class DeterministicAgent(object):
-    def __init__(self, learning_method: Model):
+    def __init__(self, learning_method: Model, input_action_num: int):
         self.learning_method = learning_method
+        self.noise = OrnsteinUhlenbeckActionNoise(mu=np.zeros(input_action_num))
 
     def select_action(self, state, epi):
         mu = self.learning_method.output_value_net(state)
-        mu_w_noise = mu + torch.tensor(self.learning_method.noise(), dtype=torch.float)
-        return mu_w_noise.detach()
+        mu_w_noise = mu + torch.tensor(self.noise(), dtype=torch.float)
+        action = mu_w_noise.view(1).item()
+        return int(np.clip(action, 0, 1))
 
     def update(self):
         self.learning_method.optimize_model()

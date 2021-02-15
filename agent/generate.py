@@ -7,7 +7,7 @@ class AgentGenerate(object):
     @staticmethod
     def generate(lm, env):
         if lm.get_method_name() == AgentsNames.DDPG.value:
-            return DeterministicAgent(learning_method=lm, env)
+            return DeterministicAgent(learning_method=lm, input_action_num=env.get_number_of_input_action())
         else:
             return ProbabilisticAgent(
                 learning_method=lm,

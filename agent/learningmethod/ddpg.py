@@ -10,13 +10,12 @@ from agent.learningmethod.network.ddpgnetwork import ActorNetwork, CriticNetwork
 from agent.learningmethod.replaybuffer import ReplayBuffer
 from agent.learningmethod.model import Model, Variable
 from simulation.values.agents import AgentsNames
-from agent.learningmethod.noise.noiseinjectory import OrnsteinUhlenbeckActionNoise
 
 
 class DdpgLearningMethod(Model):
     def __init__(self, n_actions, soft_update_flg=False, dueling_network_flg=False):
-        self.actor = ActorNetwork(n_actions).type(utility.dtype).to(device=utility.device)
-        self.target_actor = ActorNetwork(n_actions).type(utility.dtype)
+        self.actor = ActorNetwork(output=1).type(utility.dtype).to(device=utility.device)
+        self.target_actor = ActorNetwork(output=1).type(utility.dtype)
         self.target_actor.load_state_dict(self.actor.state_dict())
         self.target_actor.eval()
         self.target_actor.to(device=utility.device)
@@ -34,7 +33,6 @@ class DdpgLearningMethod(Model):
         self.target_critic.init_optimizer(utility.CRITIC_LEARNING_RATE)
 
         self.memory = ReplayBuffer(utility.DDPG_NUM_REPLAY_BUFFER, utility.FRAME_NUM)
-        self.noise = OrnsteinUhlenbeckActionNoise(mu=n_actions)
 
     def optimize_model(self, target_policy=None):
         BATCH_SIZE = utility.DDPG_BATCH_SIZE
@@ -111,7 +109,6 @@ class DdpgLearningMethod(Model):
             state = Variable(state)
             state.to(utility.device)
             output = self.actor(state)
-        # TODO: noiseを入れる
         return output
 
     def output_net_paramertes(self):
