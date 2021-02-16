@@ -55,17 +55,15 @@ class DdpgLearningMethod(Model):
         current_Q_values = self.critic(obs_batch, act_batch)
         # target Q values
         next_actions = self.target_actor(next_obs_batch)
-        next_Q_values = self.target_critic(next_obs_batch, next_actions)
-        target_Q_values = rew_batch + (utility.DDPG_GAMMA * next_Q_values)
-        # Compute Bellman Error
-        bellman_error = target_Q_values - current_Q_values
-        # Clip the bellman error between [-1, 1]
-        clipped_bellman_error = bellman_error.clamp(-1, 1)
-        d_error = clipped_bellman_error * -1.0
+        next_Q_values = self.target_critic(next_obs_batch, next_actions.squeeze(1))
+        target_Q_values = rew_batch.unsqueeze(1) + (utility.DDPG_GAMMA * next_Q_values)
+        # Compute Critic Error
+        critic_error = F.mse_loss(target_Q_values, current_Q_values)
+        print(critic_error.item())
 
         # critic optimize
         self.critic.optimizer.zero_grad()
-        current_Q_values.backward(d_error.data)
+        critic_error.backward()
         self.critic.optimizer.step()
 
         # actor optimize
@@ -77,7 +75,7 @@ class DdpgLearningMethod(Model):
         self.actor.optimizer.step()
 
         # soft update is default
-        _soft_update_target_network()
+        self._soft_update_target_network()
 
     def update_target_network(self):
         pass

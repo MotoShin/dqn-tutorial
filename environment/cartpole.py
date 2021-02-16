@@ -17,6 +17,8 @@ class CartPole(object):
         self.env = gym.make('CartPole-v1').unwrapped
         self.max_step_num = 200
         self.step_num = 0
+        self.maximum_action_value = 1
+        self.minimum_action_value = 0
 
     def _get_cart_location(self, screen_width):
         world_width = self.env.x_threshold * 2
@@ -80,7 +82,14 @@ class CartPole(object):
 
     def step(self, action):
         self.step_num += 1
-        return self.env.step(action)
+        return self.env.step(self._round_action_number(action))
 
     def close(self):
         self.env.close()
+
+    def _round_action_number(self, action):
+        reference_value = float((self.minimum_action_value + self.maximum_action_value) / 2)
+        if abs(1.0 - action) >= reference_value:
+            return 1
+        else:
+            return 0
