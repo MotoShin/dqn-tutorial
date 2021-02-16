@@ -59,7 +59,6 @@ class DdpgLearningMethod(Model):
         target_Q_values = rew_batch.unsqueeze(1) + (utility.DDPG_GAMMA * next_Q_values)
         # Compute Critic Error
         critic_error = F.mse_loss(target_Q_values, current_Q_values)
-        print(critic_error.item())
 
         # critic optimize
         self.critic.optimizer.zero_grad()
