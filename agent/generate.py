@@ -1,6 +1,7 @@
 from simulation.values.agents import AgentsNames
 from agent.agentmodel import ProbabilisticAgent, DeterministicAgent
 from agent.policy.egreedy import Egreedy
+from agent.policy.greedy import Greedy
 
 
 class AgentGenerate(object):

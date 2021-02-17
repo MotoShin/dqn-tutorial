@@ -49,20 +49,24 @@ class DdpgLearningMethod(Model):
 
         if utility.USE_CUDA:
             act_batch = act_batch.cuda()
-            rew_batch = rew_batch.cude()
+            rew_batch = rew_batch.cuda()
 
         # Q values
-        current_Q_values = self.critic(obs_batch, act_batch)
+        current_Q_values = self.critic(obs_batch, act_batch).squeeze(1)
         # target Q values
         next_actions = self.target_actor(next_obs_batch)
-        next_Q_values = self.target_critic(next_obs_batch, next_actions.squeeze(1))
-        target_Q_values = rew_batch.unsqueeze(1) + (utility.DDPG_GAMMA * next_Q_values)
+        next_select_q = self.target_critic(next_obs_batch, next_actions.squeeze(1)).squeeze(1)
+        next_Q_values = not_done_mask * next_select_q
+        target_Q_values = rew_batch + (utility.DDPG_GAMMA * next_Q_values)
         # Compute Critic Error
-        critic_error = F.mse_loss(target_Q_values, current_Q_values)
+        critic_error = F.mse_loss(current_Q_values, target_Q_values)
+        # print(critic_error.item())
+        clipped_critic_error = critic_error.clamp(-1, 1)
+        d_error = clipped_critic_error * -1.0
 
         # critic optimize
         self.critic.optimizer.zero_grad()
-        critic_error.backward()
+        current_Q_values.backward(d_error.data)
         self.critic.optimizer.step()
 
         # actor optimize
