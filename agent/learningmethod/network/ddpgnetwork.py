@@ -7,28 +7,20 @@ import torch.nn.functional as F
 class ActorNetwork(nn.Module):
     def __init__(self, output):
         super(ActorNetwork, self).__init__()
-        self.conv1 = DdpgUtility.init_conv_layer(4, 32, 8, 4)
-        self.bn1 = nn.BatchNorm2d(32)
-        self.conv2 = DdpgUtility.init_conv_layer(32, 32, 4, 2)
-        self.bn2 = nn.BatchNorm2d(32)
-        self.conv3 = DdpgUtility.init_conv_layer(32, 32, 3, 1)
-        self.bn3 = nn.BatchNorm2d(32)
-        self.fc1 = DdpgUtility.init_linear_layer(7 * 7 * 32, 200)
-        self.ln1 = nn.LayerNorm(200)
-        self.fc2 = DdpgUtility.init_linear_layer(200, 200)
-        self.ln2 = nn.LayerNorm(200)
-        self.mu = DdpgUtility.init_linear_layer(200, output, 0.0003)
+        self.conv1 = nn.Conv2d(4, 32, kernel_size=8, stride=4)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
+        self.conv3 = nn.Conv2d(64, 32, kernel_size=3, stride=1)
+        self.fc4 = nn.Linear(7 * 7 * 32, 200)
+        self.fc5 = nn.Linear(200, output)
 
         self.optimizer = None
 
     def forward(self, x):
-        x = F.relu(self.bn1(self.conv1(x)))
-        x = F.relu(self.bn2(self.conv2(x)))
-        x = F.relu(self.bn3(self.conv3(x)))
-        x = F.relu(self.ln1(self.fc1(x.view(x.size(0), -1))))
-        x = F.relu(self.ln2(self.fc2(x)))
-        x = self.mu(x)
-        return torch.tanh(x)
+        x = F.relu(self.conv1(x))
+        x = F.relu(self.conv2(x))
+        x = F.relu(self.conv3(x))
+        x = F.relu(self.fc4(x.view(x.size(0), -1)))
+        return self.fc5(x)
 
     def init_optimizer(self, lr):
         self.optimizer = optim.Adam(self.parameters(), lr=lr)
@@ -36,37 +28,30 @@ class ActorNetwork(nn.Module):
 class CriticNetwork(nn.Module):
     def __init__(self, output):
         super(CriticNetwork, self).__init__()
-        self.conv1 = DdpgUtility.init_conv_layer(4, 32, 8, 4)
-        self.bn1 = nn.BatchNorm2d(32)
-        self.conv2 = DdpgUtility.init_conv_layer(32, 32, 4, 2)
-        self.bn2 = nn.BatchNorm2d(32)
-        self.conv3 = DdpgUtility.init_conv_layer(32, 32, 3, 1)
-        self.bn3 = nn.BatchNorm2d(32)
-        self.fc1 = DdpgUtility.init_linear_layer(7 * 7 * 32, 200)
-        self.ln1 = nn.LayerNorm(200)
-        self.fc2 = DdpgUtility.init_linear_layer(200, 200)
-        self.ln2 = nn.LayerNorm(200)
-        # Hidden layers that match the number of dimensions of action
-        self.action_value = DdpgUtility.init_linear_layer(
-            DdpgUtility.get_bit_num(output),
-            200
-        )
-        self.ln3 = nn.LayerNorm(200)
-        self.fc3 = DdpgUtility.init_linear_layer(200, 1, 0.0003)
+        self.conv1 = nn.Conv2d(4, 32, kernel_size=8, stride=4)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
+        self.conv3 = nn.Conv2d(64, 32, kernel_size=3, stride=1)
+
+        self.action_fc1 = nn.Linear(DdpgUtility.get_bit_num(output), 64)
+        self.action_fc2 = nn.Linear(64, 64)
+        self.fc1 = nn.Linear(7 * 7 * 32 + 64, 200)
+        self.fc2 = nn.Linear(200, output)
 
         self.optimizer = None
 
     def forward(self, state, action):
-        state_value = F.relu(self.bn1(self.conv1(state)))
-        state_value = F.relu(self.bn2(self.conv2(state_value)))
-        state_value = F.relu(self.bn3(self.conv3(state_value)))
-        state_value = F.relu(self.ln1(self.fc1(state_value.view(state_value.size(0), -1))))
-        state_value = F.relu(self.ln2(self.fc2(state_value)))
+        state = F.relu(self.conv1(state))
+        state = F.relu(self.conv2(state))
+        state = F.relu(self.conv3(state))
+        state = state.view(state.size(0), -1)
 
-        action_value = F.relu(self.ln3(self.action_value(torch.unsqueeze(action, 1))))
-        state_action_value = F.relu(torch.add(state_value, action_value))
+        action_latent = F.relu(self.action_fc1(torch.unsqueeze(action, 1)))
+        action_latent = F.relu(self.action_fc2(action_latent))
 
-        return self.fc3(state_action_value)
+        x = torch.cat([state, action_latent], dim=1)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        return x
 
     def init_optimizer(self, lr):
         self.optimizer = optim.Adam(self.parameters(), lr=lr)

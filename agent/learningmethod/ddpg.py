@@ -58,15 +58,12 @@ class DdpgLearningMethod(Model):
         next_select_q = self.target_critic(next_obs_batch, next_actions.squeeze(1)).squeeze(1)
         next_Q_values = not_done_mask * next_select_q
         target_Q_values = rew_batch + (utility.DDPG_GAMMA * next_Q_values)
-        # Compute Critic Error
-        critic_error = F.mse_loss(current_Q_values, target_Q_values)
-        # print(critic_error.item())
-        clipped_critic_error = critic_error.clamp(-1, 1)
-        d_error = clipped_critic_error * -1.0
+        target_Q_values = torch.clamp(target_Q_values, -1e6, 1e6)
+        q_loss = F.mse_loss(current_Q_values, target_Q_values)
 
         # critic optimize
         self.critic.optimizer.zero_grad()
-        current_Q_values.backward(d_error.data)
+        q_loss.backward()
         self.critic.optimizer.step()
 
         # actor optimize
