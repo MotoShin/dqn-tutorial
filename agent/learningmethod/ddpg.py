@@ -69,7 +69,7 @@ class DdpgLearningMethod(Model):
         # actor optimize
         self.actor.optimizer.zero_grad()
         mu = self.actor(obs_batch)
-        actor_q = self.critic(obs_batch, mu)
+        actor_q = self.critic(obs_batch, mu.squeeze(1))
         actor_loss = torch.mean(-actor_q)
         actor_loss.backward()
         self.actor.optimizer.step()

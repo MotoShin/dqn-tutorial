@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 
+import utility
 from agent.learningmethod.model import Model
 from agent.policy.policymodel import PolicyModel
 from agent.learningmethod.noise.noiseinjectory import OrnsteinUhlenbeckActionNoise
@@ -45,7 +46,7 @@ class DeterministicAgent(object):
 
     def select_action(self, state, epi):
         mu = self.learning_method.output_value_net(state)
-        mu_w_noise = mu + torch.tensor(self.noise(), dtype=torch.float)
+        mu_w_noise = mu + torch.tensor(self.noise(), dtype=torch.float).to(device=utility.device)
         action = mu_w_noise.view(1).item()
         return int(np.clip(action, 0, 1))
 

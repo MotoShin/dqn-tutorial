@@ -35,7 +35,7 @@ class CriticNetwork(nn.Module):
         self.action_fc1 = nn.Linear(DdpgUtility.get_bit_num(output), 64)
         self.action_fc2 = nn.Linear(64, 64)
         self.fc1 = nn.Linear(7 * 7 * 32 + 64, 200)
-        self.fc2 = nn.Linear(200, output)
+        self.fc2 = nn.Linear(200, 1)
 
         self.optimizer = None
 
@@ -45,7 +45,7 @@ class CriticNetwork(nn.Module):
         state = F.relu(self.conv3(state))
         state = state.view(state.size(0), -1)
 
-        action_latent = F.relu(self.action_fc1(torch.unsqueeze(action, 1)))
+        action_latent = F.relu(self.action_fc1(action.unsqueeze(1)))
         action_latent = F.relu(self.action_fc2(action_latent))
 
         x = torch.cat([state, action_latent], dim=1)
