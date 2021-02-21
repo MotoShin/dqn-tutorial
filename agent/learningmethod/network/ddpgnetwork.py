@@ -20,7 +20,8 @@ class ActorNetwork(nn.Module):
         x = F.relu(self.conv2(x))
         x = F.relu(self.conv3(x))
         x = F.relu(self.fc4(x.view(x.size(0), -1)))
-        return self.fc5(x)
+        x = self.fc5(x)
+        return torch.tanh(x)
 
     def init_optimizer(self, lr):
         self.optimizer = optim.Adam(self.parameters(), lr=lr)
@@ -91,3 +92,31 @@ class DdpgUtility(object):
         output: Number of bits in binary number
         """
         return DdpgUtility._get_bit_num(number - 1, 1)
+
+class ActorOutputControl(object):
+    def __init__(self):
+        # TODO: 初期化で変えられるようにする
+        self.output_maximum = 1.0
+        self.output_minimum = -1.0
+
+        self.action_maximum = 1.0
+        self.action_minimum = 0.0
+
+    def change_output_range(self, numOrTensor):
+        rate = (self.output_maximum - numOrTensor) / (self.output_maximum + abs(self.output_minimum))
+        changed_range_action = (self.action_maximum - self.action_minimum) * rate + self.action_minimum
+        return changed_range_action
+
+    def num_to_round_action_number(self, num: float):
+        reference_value = float((self.action_minimum + self.action_maximum) / 2)
+        if abs(1.0 - num) >= reference_value:
+            return int(self.action_minimum)
+        else:
+            return int(self.action_maximum)
+
+    def tensor_to_round_action_number(self, tensor: torch.tensor):
+        reference_value = float((self.action_minimum + self.action_maximum) / 2)
+        ary = tensor.detach().clone().numpy()
+        for index in range(len(ary)):
+            ary[index] = np.array(self.num_to_round_action_number(ary[index][0]))
+        return torch.from_numpy(ary)

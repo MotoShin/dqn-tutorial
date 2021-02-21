@@ -43,12 +43,17 @@ class DeterministicAgent(object):
     def __init__(self, learning_method: Model, input_action_num: int):
         self.learning_method = learning_method
         self.noise = OrnsteinUhlenbeckActionNoise(mu=np.zeros(input_action_num))
+        # TODO: 引数で設定できるようにする
+        self.action_minimum = 0.0
+        self.action_maximum = 1.0
 
     def select_action(self, state, epi):
         mu = self.learning_method.output_value_net(state)
         mu_w_noise = mu + torch.tensor(self.noise(), dtype=torch.float).to(device=utility.device)
-        action = mu_w_noise.view(1).item()
-        return int(np.clip(action, 0, 1))
+        action = self._change_range(np.clip(mu_w_noise.view(1).item(), -1, 1))
+        action = self._round_action_number(action)
+        print(action)
+        return action
 
     def update(self):
         self.learning_method.optimize_model()
@@ -70,3 +75,18 @@ class DeterministicAgent(object):
 
     def get_method_name(self):
         return self.learning_method.get_method_name()
+
+    def _change_range(self, action):
+        network_output_minimum = -1.0
+        network_output_maximum = 1.0
+
+        rate = (network_output_maximum - action) / (network_output_maximum + abs(network_output_minimum))
+        changed_range_action = (self.action_maximum - self.action_minimum) * rate + self.action_minimum
+        return changed_range_action
+
+    def _round_action_number(self, action):
+        reference_value = float((self.action_minimum + self.action_maximum) / 2)
+        if abs(1.0 - action) >= reference_value:
+            return 0
+        else:
+            return 1

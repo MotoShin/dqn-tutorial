@@ -82,14 +82,7 @@ class CartPole(object):
 
     def step(self, action):
         self.step_num += 1
-        return self.env.step(self._round_action_number(action))
+        return self.env.step(action)
 
     def close(self):
         self.env.close()
-
-    def _round_action_number(self, action):
-        reference_value = float((self.minimum_action_value + self.maximum_action_value) / 2)
-        if abs(1.0 - action) >= reference_value:
-            return 1
-        else:
-            return 0
