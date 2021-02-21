@@ -139,4 +139,4 @@ dmypy.json
 *.pth
 
 # secret
-cartpole/secret/__init__.py
+secret/__init__.py
