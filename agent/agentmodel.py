@@ -52,7 +52,7 @@ class DeterministicAgent(object):
         mu_w_noise = mu + torch.tensor(self.noise(), dtype=torch.float).to(device=utility.device)
         action = self._change_range(np.clip(mu_w_noise.view(1).item(), -1, 1))
         action = self._round_action_number(action)
-        print(action)
+        # print(action)
         return action
 
     def update(self):
