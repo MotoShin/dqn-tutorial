@@ -6,10 +6,11 @@ import torch.autograd as autograd
 import numpy as np
 
 import utility
-from agent.learningmethod.network.ddpgnetwork import ActorNetwork, CriticNetwork, ActorOutputControl
+from agent.learningmethod.network.ddpgnetwork import ActorNetwork, CriticNetwork
 from agent.learningmethod.replaybuffer import ReplayBuffer
 from agent.learningmethod.model import Model, Variable
 from simulation.values.agents import AgentsNames
+from environment.utility import EnvironmentUtility
 
 
 class DdpgLearningMethod(Model):
@@ -33,7 +34,6 @@ class DdpgLearningMethod(Model):
         self.target_critic.init_optimizer(utility.CRITIC_LEARNING_RATE)
 
         self.memory = ReplayBuffer(utility.DDPG_NUM_REPLAY_BUFFER, utility.FRAME_NUM)
-        self.aoc = ActorOutputControl()
 
     def optimize_model(self, target_policy=None):
         BATCH_SIZE = utility.DDPG_BATCH_SIZE
@@ -56,11 +56,11 @@ class DdpgLearningMethod(Model):
         current_Q_values = self.critic(obs_batch, act_batch).squeeze(1)
         # target Q values
         next_actor_outputs = self.target_actor(next_obs_batch)
-        next_actions = self.aoc.tensor_to_round_action_number(self.aoc.change_output_range(next_actor_outputs))
+        next_actions = EnvironmentUtility.tensor_to_round_action_number(next_actor_outputs)
         next_select_q = self.target_critic(next_obs_batch, next_actions.squeeze(1)).squeeze(1)
         next_Q_values = not_done_mask * next_select_q
         target_Q_values = rew_batch + (utility.DDPG_GAMMA * next_Q_values)
-        target_Q_values = torch.clamp(target_Q_values, -1e6, 1e6)
+        # target_Q_values = torch.clamp(target_Q_values, -1e6, 1e6)
         q_loss = F.mse_loss(current_Q_values, target_Q_values)
 
         # critic optimize
@@ -71,7 +71,7 @@ class DdpgLearningMethod(Model):
         # actor optimize
         self.actor.optimizer.zero_grad()
         mu = self.actor(obs_batch)
-        actions = self.aoc.tensor_to_round_action_number(self.aoc.change_output_range(mu))
+        actions = EnvironmentUtility.tensor_to_round_action_number(mu)
         actor_q = self.critic(obs_batch, actions.squeeze(1))
         actor_loss = torch.mean(-actor_q)
         actor_loss.backward()

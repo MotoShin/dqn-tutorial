@@ -7,15 +7,17 @@ from environment.cartpole import CartPole
 
 
 #### Line notify ####
-LINE_NOTIFY_FLG = False
+LINE_NOTIFY_FLG = True
 LINE_NOTIFY_MSG = "実行完了\n経過時間: {}"
 LINE_NOTIFY_TOKEN = secret.LINE_NOTIFY_TOKEN if LINE_NOTIFY_FLG else None
 
 #### task ####
 TASK = CartPole()
+ACTION_MAXIMUM = TASK.maximum_action_value
+ACTION_MINIMUM = TASK.minimum_action_value
 
 #### Simulation parameters ####
-NUM_EPISODE = 1000
+NUM_EPISODE = 2000
 NUM_SIMULATION = 1
 
 #### DQN parameters ####
@@ -43,11 +45,11 @@ EPS_TIMESTEPS = 30000
 TAU = 1e-3
 
 #### DDPG parameters ####
-ACTOR_LEARNING_RATE = 0.001
-CRITIC_LEARNING_RATE = 0.001
-DDPG_NUM_REPLAY_BUFFER = 10000
+ACTOR_LEARNING_RATE = 0.0002
+CRITIC_LEARNING_RATE = 0.0002
+DDPG_NUM_REPLAY_BUFFER = 1000000
 DDPG_BATCH_SIZE = 16
-DDPG_GAMMA = 0.999
+DDPG_GAMMA = 0.99
 NET_PARAMETERS_BK_PATH_ACTOR = 'output/value_net_bk_actor.pth'
 NET_PARAMETERS_BK_PATH_CRITIC = 'output/value_net_bk_critic.pth'
 

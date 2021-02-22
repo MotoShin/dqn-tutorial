@@ -4,6 +4,7 @@ import numpy as np
 import utility
 from agent.learningmethod.model import Model
 from agent.policy.policymodel import PolicyModel
+from environment.utility import EnvironmentUtility
 from agent.learningmethod.noise.noiseinjectory import OrnsteinUhlenbeckActionNoise
 
 
@@ -49,10 +50,10 @@ class DeterministicAgent(object):
 
     def select_action(self, state, epi):
         mu = self.learning_method.output_value_net(state)
-        mu_w_noise = mu + torch.tensor(self.noise(), dtype=torch.float).to(device=utility.device)
-        action = self._change_range(np.clip(mu_w_noise.view(1).item(), -1, 1))
-        action = self._round_action_number(action)
-        # print(action)
+        mu = mu.to('cpu').detach().numpy().copy()[0]
+        mu += np.random.normal(utility.ACTION_MINIMUM, utility.ACTION_MAXIMUM, size=1)
+        clip_mu = np.clip(mu, utility.ACTION_MINIMUM, utility.ACTION_MAXIMUM)
+        action = EnvironmentUtility.num_to_round_action_number(clip_mu[0])
         return action
 
     def update(self):
@@ -75,18 +76,3 @@ class DeterministicAgent(object):
 
     def get_method_name(self):
         return self.learning_method.get_method_name()
-
-    def _change_range(self, action):
-        network_output_minimum = -1.0
-        network_output_maximum = 1.0
-
-        rate = (network_output_maximum - action) / (network_output_maximum + abs(network_output_minimum))
-        changed_range_action = (self.action_maximum - self.action_minimum) * rate + self.action_minimum
-        return changed_range_action
-
-    def _round_action_number(self, action):
-        reference_value = float((self.action_minimum + self.action_maximum) / 2)
-        if abs(1.0 - action) >= reference_value:
-            return 0
-        else:
-            return 1
