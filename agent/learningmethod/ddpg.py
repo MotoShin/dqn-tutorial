@@ -57,6 +57,8 @@ class DdpgLearningMethod(Model):
         # target Q values
         next_actor_outputs = self.target_actor(next_obs_batch)
         next_actions = EnvironmentUtility.tensor_to_round_action_number(next_actor_outputs)
+        if utility.USE_CUDA:
+            next_actions = next_actions.cuda()
         next_select_q = self.target_critic(next_obs_batch, next_actions.squeeze(1)).squeeze(1)
         next_Q_values = not_done_mask * next_select_q
         target_Q_values = rew_batch + (utility.DDPG_GAMMA * next_Q_values)
