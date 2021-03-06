@@ -51,6 +51,7 @@ class DeterministicAgent(object):
     def select_action(self, state, epi):
         mu = self.learning_method.output_value_net(state)
         mu = mu.to('cpu').detach().numpy().copy()[0]
+        mu = EnvironmentUtility.change_range(mu)
         mu += np.random.normal(utility.ACTION_MINIMUM, 0.2 * utility.ACTION_MAXIMUM, size=1)
         clip_mu = np.clip(mu, utility.ACTION_MINIMUM, utility.ACTION_MAXIMUM)
         action = EnvironmentUtility.num_to_round_action_number(clip_mu[0])

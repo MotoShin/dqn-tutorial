@@ -8,20 +8,20 @@ class ActorNetwork(nn.Module):
     def __init__(self, output):
         super(ActorNetwork, self).__init__()
         self.conv1 = nn.Conv2d(4, 32, kernel_size=8, stride=4)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
-        self.conv3 = nn.Conv2d(64, 32, kernel_size=3, stride=1)
-        self.fc4 = nn.Linear(7 * 7 * 32, 200)
-        self.fc5 = nn.Linear(200, output)
+        self.conv2 = nn.Conv2d(32, 32, kernel_size=3)
+        self.fc3 = nn.Linear(18 * 18 * 32, 400)
+        self.fc4 = nn.Linear(400, 300)
+        self.fc5 = nn.Linear(300, output)
 
         self.optimizer = None
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
         x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
-        x = F.relu(self.fc4(x.view(x.size(0), -1)))
-        x = self.fc5(x)
-        return torch.sigmoid(x)
+        x = F.relu(self.fc3(x.view(x.size(0), -1)))
+        x = F.relu(self.fc4(x))
+        x = F.relu(self.fc5(x))
+        return torch.tanh(x)
 
     def init_optimizer(self, lr):
         self.optimizer = optim.Adam(self.parameters(), lr=lr)
@@ -30,20 +30,19 @@ class CriticNetwork(nn.Module):
     def __init__(self, output):
         super(CriticNetwork, self).__init__()
         self.conv1 = nn.Conv2d(4, 32, kernel_size=8, stride=4)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
-        self.conv3 = nn.Conv2d(64, 32, kernel_size=3, stride=1)
+        self.conv2 = nn.Conv2d(32, 32, kernel_size=3)
 
         self.action_fc1 = nn.Linear(DdpgUtility.get_bit_num(output), 64)
         self.action_fc2 = nn.Linear(64, 64)
-        self.fc1 = nn.Linear(7 * 7 * 32 + 64, 200)
-        self.fc2 = nn.Linear(200, 1)
+        self.fc1 = nn.Linear(18 * 18 * 32 + 64, 400)
+        self.fc2 = nn.Linear(400, 300)
+        self.fc3 = nn.Linear(300, 1)
 
         self.optimizer = None
 
     def forward(self, state, action):
         state = F.relu(self.conv1(state))
         state = F.relu(self.conv2(state))
-        state = F.relu(self.conv3(state))
         state = state.view(state.size(0), -1)
 
         action_latent = F.relu(self.action_fc1(action.unsqueeze(1)))
@@ -52,6 +51,7 @@ class CriticNetwork(nn.Module):
         x = torch.cat([state, action_latent], dim=1)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
         return x
 
     def init_optimizer(self, lr):

@@ -33,6 +33,9 @@ class DdpgLearningMethod(Model):
         self.critic.init_optimizer(utility.CRITIC_LEARNING_RATE)
         self.target_critic.init_optimizer(utility.CRITIC_LEARNING_RATE)
 
+        self.output_action_maximum = 1.0
+        self.output_action_minimum = -1.0
+
         self.memory = ReplayBuffer(utility.DDPG_NUM_REPLAY_BUFFER, utility.FRAME_NUM)
 
     def optimize_model(self, target_policy=None):
@@ -56,7 +59,8 @@ class DdpgLearningMethod(Model):
         current_Q_values = self.critic(obs_batch, act_batch).squeeze(1)
         # target Q values
         next_actor_outputs = self.target_actor(next_obs_batch)
-        next_actions = EnvironmentUtility.tensor_to_round_action_number(next_actor_outputs)
+        range_changed_outputs = EnvironmentUtility.tensor_change_range(next_actor_outputs)
+        next_actions = EnvironmentUtility.tensor_to_round_action_number(range_changed_outputs)
         next_select_q = self.target_critic(next_obs_batch, next_actions.to(device=utility.device).squeeze(1)).squeeze(1)
         next_Q_values = not_done_mask * next_select_q
         target_Q_values = rew_batch + (utility.DDPG_GAMMA * next_Q_values)
