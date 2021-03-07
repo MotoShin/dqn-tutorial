@@ -39,8 +39,8 @@ class DdpgLearningMethod(Model):
         self.memory = ReplayBuffer(utility.DDPG_NUM_REPLAY_BUFFER, utility.FRAME_NUM)
 
     def optimize_model(self, target_policy=None):
-        BATCH_SIZE = utility.DDPG_WARMUP_SIZE
-        if not self.memory.can_sample(BATCH_SIZE):
+        BATCH_SIZE = utility.DDPG_BATCH_SIZE
+        if not self.memory.can_sample(utility.DDPG_WARMUP_SIZE):
             return
 
         obs_batch, act_batch, rew_batch, next_obs_batch, done_mask = self.memory.sample(BATCH_SIZE)
