@@ -10,6 +10,7 @@ class AgentsNames(Enum):
     DDQN_SOFTUPDATE = "ddqn_softupdate"
     DDQN_DUELINGNET = "ddqn_dueling_network"
     DDQN_SOFTUPDATE_DUELINGNET = "ddqn_softupdate_dueling_network"
+    DDPG = "ddpg"
 
     @staticmethod
     def get_name(category, soft_update_flg, dueling_network_flg):
@@ -34,6 +35,9 @@ class AgentsNames(Enum):
                 agent_name = AgentsNames.DDQN_DUELINGNET.value
             else:
                 agent_name = AgentsNames.DDQN.value
+
+        if category == AgentsNames.DDPG.value:
+            agent_name = AgentsNames.DDPG.value
 
         return agent_name
 
